@@ -1,0 +1,38 @@
+spring:
+  # DB 설정
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+  output:
+    ansi:
+      enabled: always
+  
+  profiles:
+    active: db
+
+# 에러 응답 설정
+server:
+  error:
+    include-stacktrace: on_param
+    include-exception: true
+  servlet:
+    session:
+      tracking-modes: cookie
+
+# 로깅 레벨 설정
+logging:
+  level:
+    org.hibernate.SQL: debug
+
