@@ -1,9 +1,6 @@
-package com.talkmoaserver;
+package com.talkmoaserver.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * 데이터베이스 테이블 - 객체를 매핑한 Java 객체이다.
@@ -14,7 +11,12 @@ import javax.persistence.Id;
 @Entity
 public class Word {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "word_id")
     private Long id;
     private String word;
     private int frequency;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
 }

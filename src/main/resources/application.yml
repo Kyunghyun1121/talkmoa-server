@@ -20,7 +20,7 @@ spring:
       enabled: always
   
   profiles:
-    active: db
+    active: secret
 
 # 에러 응답 설정
 server:
