@@ -31,3 +31,15 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// 빌드시 -plain.jar 생기는 설정 끄기 (for Github Actions)
+jar {
+	enabled = false
+}
+
+// jar 빌드 파일 이름 변경
+bootJar {
+	archiveFileName = "talkmoa.jar"
+}
+
+
