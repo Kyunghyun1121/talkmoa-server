@@ -3,10 +3,10 @@ on: [push]
 jobs:
 
   build:
-    name: Build
+    name: Test
     runs-on: ubuntu-latest
     steps:
-    - name: executing remote ssh commands using password
+    - name: Execute Test Script
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
