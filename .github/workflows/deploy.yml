@@ -50,7 +50,7 @@ jobs:
         with:
           host: 3.38.15.0
           username: ubuntu
-          key: ${{ secrets.EC2_KEY_PAIR }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/talkmoa:${GITHUB_SHA::7}
