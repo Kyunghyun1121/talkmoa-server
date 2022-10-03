@@ -1,7 +1,6 @@
 package com.talkmoaserver;
 
 import com.talkmoaserver.entity.ChatRoom;
-import com.talkmoaserver.entity.Word;
 import com.talkmoaserver.repository.ChatRoomRepository;
 import com.talkmoaserver.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * 단어 분석 등 핵심적인 비즈니스 로직을 담당하는 레이어
@@ -25,8 +23,10 @@ public class WordService {
     private final ChatRoomRepository chatRoomRepository;
     private static long sequence = 0L;
 
+
+
     // 1. txt파일을 읽어서 대화내역을 받으면 ChatRoom 객체로 만들어서 저장하는 함수
-    public ChatRoom Storechat(@RequestParam("file")MultipartFile mutifile) throws IOException {
+    public ChatRoom storeFileToChat(@RequestParam("file")MultipartFile mutifile) throws IOException {
         File file = new File(mutifile.getOriginalFilename());
         mutifile.transferTo(file);
 
@@ -50,7 +50,7 @@ public class WordService {
         }
         reader.close();
 
-        ChatRoom chatRoom = new ChatRoom(sequence++,roomname,Split(list,coun));
+        ChatRoom chatRoom = new ChatRoom(sequence++,roomname, storeTalkTolist(list,coun));
         chatRoomRepository.save(chatRoom);
         return chatRoom;
     }
@@ -58,7 +58,7 @@ public class WordService {
 
     // 2. 받은 대화 내역을 일단 배열에 저장해서 돌려주는 함수
     int charcount = 0; //단어를 세는 횟수를 저장
-    public List Split(String[] line,int num){
+    public List storeTalkTolist(String[] line, int num){
         HashMap<String, Integer>talkerMap = new HashMap<>();
         HashMap<String, Integer>talkingtimeMap = new HashMap<>();
         List<String> talk = new ArrayList<>();
@@ -71,14 +71,15 @@ public class WordService {
                 continue;
             }
             charcount = 0;
-            talkerMap = Talkersave(arr);
+            talkerMap = saveTalkerToMap(arr);
 
             charcount+=2;
-            talkingtimeMap =Timesave(arr);
+            talkingtimeMap = saveTalkerToMap(arr);
 
             //대화 내역 저장
-            char[] talking = new char[0];
-            for(int a=0; arr[charcount]!=0; a++){
+            charcount+=2;
+            char[] talking = new char[arr.length+1];
+            for(int a=0; charcount < arr.length; a++){
                 talking[a] = arr[charcount++];
             }
             talk.add(String.valueOf(talking));
@@ -88,10 +89,10 @@ public class WordService {
         return talk;
     }
 
-    private HashMap Talkersave(char[] arr){
+    private HashMap saveTalkerToMap(char[] arr){
         HashMap<String, Integer>talkerMap = new HashMap<>();
         //대화자 저장
-        char[] name = new char[0];
+        char[] name = new char[arr.length+1];
         for(int a=0; arr[charcount]!=']'; a++){
             name[a] = arr[charcount++];
         }
@@ -103,10 +104,10 @@ public class WordService {
         return talkerMap;
     }
 
-    private HashMap Timesave(char[] arr){
+    private HashMap saveTalkingTimeToMap(char[] arr){
         HashMap<String, Integer>talkingtimeMap = new HashMap<>();
         //대화 시간 저장
-        char[] talkingtime = new char[0];
+        char[] talkingtime = new char[arr.length+1];
         for(int a=0; arr[charcount]!=']'; a++){
             talkingtime[a] = arr[charcount++];
         }
@@ -121,7 +122,7 @@ public class WordService {
 
 
     // 3. 그 배열을 돌면서 해시맵에 단어 : 빈도수로 매핑시켜서 돌려주는 함수
-    public HashMap Analyze(ArrayList<String> wordlist){
+    public HashMap mappingWordInMap(ArrayList<String> wordlist){
         HashMap<String, Integer>analyzedResultMap = new HashMap<>();
 
         while (!wordlist.isEmpty()){
@@ -135,4 +136,6 @@ public class WordService {
         }
         return analyzedResultMap;
     }
+
+
 }
