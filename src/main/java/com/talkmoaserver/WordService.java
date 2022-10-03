@@ -6,9 +6,10 @@ import com.talkmoaserver.repository.ChatRoomRepository;
 import com.talkmoaserver.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,41 +24,43 @@ public class WordService {
     private final WordRepository wordRepository;
     private final ChatRoomRepository chatRoomRepository;
     private static long sequence = 0L;
-    private int tnum = 0;
 
     // 1. txt파일을 읽어서 대화내역을 받으면 ChatRoom 객체로 만들어서 저장하는 함수
-    public ChatRoom storechat(File file) throws FileNotFoundException {
-        Scanner scanner = new Scanner(file);
-        String roomname = scanner.next();
+    public ChatRoom Storechat(@RequestParam("file")MultipartFile mutifile) throws IOException {
+        File file = new File(mutifile.getOriginalFilename());
+        mutifile.transferTo(file);
+
+        StringBuffer strbuffer = new StringBuffer();
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+
+        //방 이름 가져오기
+        String roomname = reader.readLine();
 
         // 처음에 날짜가 있어서 넘김
-        String empty = scanner.nextLine();
-        empty = scanner.nextLine();
+        String empty = reader.readLine();
+        empty = reader.readLine();
 
-        ChatRoom chatroom = new ChatRoom();
 
         String[] list = new String[]{};
         int coun = 0;
-
-        //파일을 읽으며 문장 배열을 만듬
-        while (scanner.hasNext()) {
-            String str = scanner.next();
+        while (strbuffer.append(reader.readLine())!=null){
+            //파일을 읽으며 문장 배열을 만듬
+            String str = strbuffer.toString();
             list[coun++]=str;
         }
+        reader.close();
 
-        chatroom.setId(sequence++);
-        chatroom.setRoomName(roomname);
-        chatroom.setWordList(split(list,coun));
-        chatroom.setTotalWordCount(chatroom.getWordList().size());
-        return chatroom;
+        ChatRoom chatRoom = new ChatRoom(sequence++,roomname,Split(list,coun));
+        chatRoomRepository.save(chatRoom);
+        return chatRoom;
     }
 
 
     // 2. 받은 대화 내역을 일단 배열에 저장해서 돌려주는 함수
-
-    public List split(String[] line,int num){
-        HashMap<String, Integer>talker = new HashMap<>();
-        HashMap<String, Integer>timer = new HashMap<>();
+    int charcount = 0; //단어를 세는 횟수를 저장
+    public List Split(String[] line,int num){
+        HashMap<String, Integer>talkerMap = new HashMap<>();
+        HashMap<String, Integer>talkingtimeMap = new HashMap<>();
         List<String> talk = new ArrayList<>();
 
         for(int b=0; b<num; b++){
@@ -67,35 +70,16 @@ public class WordService {
                 talk.add(line[b]);
                 continue;
             }
+            charcount = 0;
+            talkerMap = Talkersave(arr);
 
-            //대화자 저장
-            int coun = 0;
-            char[] name = new char[0];
-            for(int a=0; arr[coun]!=']'; a++){
-                name[a] = arr[coun++];
-            }
-            if(!talker.containsKey(String.valueOf(name))){
-                talker.put(String.valueOf(name),1);
-            }else{
-                talker.put(String.valueOf(name), talker.get(String.valueOf(name))+1);
-            }
-
-            coun+=2;
-            //대화 시간 저장
-            char[] time = new char[0];
-            for(int a=0; arr[coun]!=']'; a++){
-                time[a] = arr[coun++];
-            }
-            if(!timer.containsKey(String.valueOf(time))){
-                timer.put(String.valueOf(time),1);
-            }else{
-                timer.put(String.valueOf(time), timer.get(String.valueOf(time))+1);
-            }
+            charcount+=2;
+            talkingtimeMap =Timesave(arr);
 
             //대화 내역 저장
             char[] talking = new char[0];
-            for(int a=0; arr[coun]!=0; a++){
-                talking[a] = arr[coun++];
+            for(int a=0; arr[charcount]!=0; a++){
+                talking[a] = arr[charcount++];
             }
             talk.add(String.valueOf(talking));
 
@@ -104,19 +88,51 @@ public class WordService {
         return talk;
     }
 
+    private HashMap Talkersave(char[] arr){
+        HashMap<String, Integer>talkerMap = new HashMap<>();
+        //대화자 저장
+        char[] name = new char[0];
+        for(int a=0; arr[charcount]!=']'; a++){
+            name[a] = arr[charcount++];
+        }
+        if(!talkerMap.containsKey(String.valueOf(name))){
+            talkerMap.put(String.valueOf(name),1);
+        }else{
+            talkerMap.put(String.valueOf(name), talkerMap.get(String.valueOf(name))+1);
+        }
+        return talkerMap;
+    }
+
+    private HashMap Timesave(char[] arr){
+        HashMap<String, Integer>talkingtimeMap = new HashMap<>();
+        //대화 시간 저장
+        char[] talkingtime = new char[0];
+        for(int a=0; arr[charcount]!=']'; a++){
+            talkingtime[a] = arr[charcount++];
+        }
+        if(!talkingtimeMap.containsKey(String.valueOf(talkingtime))){
+            talkingtimeMap.put(String.valueOf(talkingtime),1);
+        }else{
+            talkingtimeMap.put(String.valueOf(talkingtime), talkingtimeMap.get(String.valueOf(talkingtime))+1);
+        }
+        return talkingtimeMap;
+    }
+
+
+
     // 3. 그 배열을 돌면서 해시맵에 단어 : 빈도수로 매핑시켜서 돌려주는 함수
-    public HashMap analyze(ArrayList<?> wordlist){
-        HashMap<String, Integer>talk = new HashMap<>();
+    public HashMap Analyze(ArrayList<String> wordlist){
+        HashMap<String, Integer>analyzedResultMap = new HashMap<>();
 
         while (!wordlist.isEmpty()){
             String str = (String) wordlist.remove(0);
 
-            if(!talk.containsKey(str)){
-                talk.put(str,1);
+            if(!analyzedResultMap.containsKey(str)){
+                analyzedResultMap.put(str,1);
             }else{
-                talk.put(str, talk.get(str)+1);
+                analyzedResultMap.put(str, analyzedResultMap.get(str)+1);
             }
         }
-        return talk;
+        return analyzedResultMap;
     }
 }
