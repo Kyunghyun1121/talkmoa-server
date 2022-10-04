@@ -1,5 +1,7 @@
 package com.talkmoaserver.entity;
 
+import lombok.Getter;
+
 import javax.persistence.*;
 
 /**
@@ -9,6 +11,7 @@ import javax.persistence.*;
  * Java 객체에 데이터를 넣어서 디비에 바로 저장을 한다.
  */
 @Entity
+@Getter
 public class Word {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "word_id")
@@ -19,4 +22,13 @@ public class Word {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
+
+    public Word(String word) {
+        this.word = word;
+        this.frequency = 0;
+    }
+
+    public void plusCount() {
+        this.frequency++;
+    }
 }
