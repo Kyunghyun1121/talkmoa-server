@@ -1,6 +1,8 @@
 package com.talkmoaserver.entity;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -12,6 +14,7 @@ import javax.persistence.*;
  */
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Word {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "word_id")

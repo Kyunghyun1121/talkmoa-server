@@ -33,6 +33,8 @@ public class AnalyzeService {
      * 1. 대화자 추출 -> 대화자 목록과 각기 대화한 횟수 분석
      */
     public List<FrequencyResult> calcTotal(Map<String, List<String>> talkerToWords) {
+        List<FrequencyResult> result = new ArrayList<>();
+        result.add(new FrequencyResult("노경현", 30));
         return convertDto();
     }
 
@@ -40,6 +42,9 @@ public class AnalyzeService {
      * 2. 미디어(사진, 동영상, 첨부파일)를 주고받은 횟수 추출 -> 대화자 : 횟수
      */
     public List<FrequencyResult> calcMedia(Map<String, List<String>> talkerToWords) {
+        // 노경현 : 3430 // (사진, 동영상, 첨부파일)
+        new FrequencyResult("노경현", 3430);
+        new FrequencyResult("배성흥", 3430);
         return convertDto();
     }
 
@@ -130,22 +135,22 @@ public class AnalyzeService {
 //        for(int a = 0; arr[charCount]!=']'; a++){
 //            name[a] = arr[charCount++];
 //        }
-//        if(!talkerMap.containsKey(String.valueOf(name))){
+//        if (!talkerMap.containsKey(String.valueOf(name))) {
 //            talkerMap.put(String.valueOf(name),1);
-//        }else{
+//        } else {
 //            talkerMap.put(String.valueOf(name), talkerMap.get(String.valueOf(name))+1);
 //        }
 //        return talkerMap;
 
 //    private HashMap saveTalkingTimeToMap(char[] arr){
-//        HashMap<String, Integer>talkingtimeMap = new HashMap<>();
+//        HashMap<String, Integer> talkingtimeMap = new HashMap<>();
 //        //대화 시간 저장
 //        char[] talkingtime = new char[arr.length+1];
 //        for(int a = 0; arr[charCount]!=']'; a++){
 //            talkingtime[a] = arr[charCount++];
 //        }
 //        if(!talkingtimeMap.containsKey(String.valueOf(talkingtime))){
-//            talkingtimeMap.put(String.valueOf(talkingtime),1);
+//            talkingtimeMap.put(String.valueOf(talkingtime), 1);
 //        }else{
 //            talkingtimeMap.put(String.valueOf(talkingtime), talkingtimeMap.get(String.valueOf(talkingtime))+1);
 //        }
