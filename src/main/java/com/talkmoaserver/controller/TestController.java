@@ -1,11 +1,15 @@
 package com.talkmoaserver.controller;
 
 import com.talkmoaserver.dto.FrequencyResult;
+import com.talkmoaserver.dto.ResultResponse;
 import com.talkmoaserver.service.AnalyzeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,5 +39,36 @@ public class TestController {
 //        List<FrequencyResult> result = new ArrayList<>();
 //        result.add(new FrequencyResult("노경현", 123123123));
         return frequencyResults;
+    }
+
+    @PostMapping("/test/upload")
+    public ResultResponse testForFront(@RequestParam("file") MultipartFile file) {
+        List<FrequencyResult> total = new ArrayList<>();
+        total.add(new FrequencyResult("이준형", 3333));
+        total.add(new FrequencyResult("김원철", 123));
+
+        List<FrequencyResult> media = new ArrayList<>();
+        media.add(new FrequencyResult("이준형", 11));
+        media.add(new FrequencyResult("김원철", 23));
+
+        List<FrequencyResult> emoji = new ArrayList<>();
+        emoji.add(new FrequencyResult("이준형", 0));
+        emoji.add(new FrequencyResult("김원철", 100));
+
+        List<FrequencyResult> low = new ArrayList<>();
+        low.add(new FrequencyResult("10시~11시", 32));
+        low.add(new FrequencyResult("11시~12시", 10));
+
+        List<FrequencyResult> high = new ArrayList<>();
+        high.add(new FrequencyResult("15시~16시", 1));
+        high.add(new FrequencyResult("17시~18시", 2));
+
+        return ResultResponse.builder()
+                .total(total)
+                .media(media)
+                .emoji(emoji)
+                .lowPeriod(low)
+                .highPeriod(high)
+                .build();
     }
 }
