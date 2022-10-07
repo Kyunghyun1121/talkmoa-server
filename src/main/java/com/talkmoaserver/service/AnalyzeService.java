@@ -21,13 +21,6 @@ import java.util.*;
 public class AnalyzeService {
 
     // 컨트롤러로 전달할 DTO 를 만들어주는 메소드 파라미터로 무얼 받아야할 지는 구현하면서 고민해 볼 것
-    private List<FrequencyResult> convertDto() {
-        List<FrequencyResult> data = new ArrayList<>();
-        return data;
-    }
-    private List<FrequencyResult> convertDto(List<FrequencyResult> result) {
-        return result;
-    }
 
     /**
      * 1. 대화자 추출 -> 대화자 목록과 각기 대화한 횟수 분석
@@ -39,7 +32,7 @@ public class AnalyzeService {
             result.add(new FrequencyResult(talker, countTalkingInList(talkerToWords.get(talker))));
         }
 
-        return convertDto(result);
+        return result;
     }
 //    public Map<String, Integer> countTalkingToMap(Map<String, List<String>> talkerToWords){
 //        Map<String, Integer> talkermap = new HashMap<>();
@@ -55,16 +48,16 @@ public class AnalyzeService {
 //        return talkermap;
 //    }
     //대화횟수를 세주는 함수
-    private int countTalkingInList(List<String> talkinglist){
-        int talkcounter = 0;
-        for(String talk : talkinglist){
+    private int countTalkingInList(List<String> talkingList){
+        int talkCounter = 0;
+        for(String talk : talkingList){
             if(!talk.equals("사진") && !talk.equals("이모티콘") && !talk.equals("동영상") && !talk.contains("파일:") ){
                 if((talk.contains("오전") || talk.contains("오후")) && talk.contains(":") && talk.length() == 8)continue;
-                talkcounter++;
+                talkCounter++;
             }
         }
 
-        return talkcounter;
+        return talkCounter;
     }
 
 
@@ -75,22 +68,22 @@ public class AnalyzeService {
         // 노경현 : 3430 // (사진, 동영상, 첨부파일)
         List<FrequencyResult> result = new ArrayList<>();
         for(String talker : talkerToWords.keySet()){
-            List<String> talkinglist = talkerToWords.get(talker);
+            List<String> talkingList = talkerToWords.get(talker);
 
-            result.add(new FrequencyResult(talker, countMediaInList(talkinglist)));
+            result.add(new FrequencyResult(talker, countMediaInList(talkingList)));
         }
 
-        return convertDto(result);
+        return result;
     }
     //미디어 개수를 세주는 함수
-    private int countMediaInList(List<String> talkinglist){
-        int mediacounter = 0;
-        for(String talk : talkinglist){
+    private int countMediaInList(List<String> talkingList){
+        int mediaCounter = 0;
+        for(String talk : talkingList){
             if(talk.equals("사진") || talk.equals("동영상") || talk.contains("파일:") ){
-                mediacounter++;
+                mediaCounter++;
             }
         }
-        return mediacounter;
+        return mediaCounter;
     }
 
     /**
@@ -99,22 +92,22 @@ public class AnalyzeService {
     public List<FrequencyResult> calcEmoji(Map<String, List<String>> talkerToWords) {
         List<FrequencyResult> result = new ArrayList<>();
         for(String talker : talkerToWords.keySet()){
-            List<String> talkinglist = talkerToWords.get(talker);
+            List<String> talkingList = talkerToWords.get(talker);
 
-            result.add(new FrequencyResult(talker, countEmojiInList(talkinglist)));
+            result.add(new FrequencyResult(talker, countEmojiInList(talkingList)));
         }
 
-        return convertDto(result);
+        return result;
     }
     //이모티콘 개수를 세주는 함수
     private int countEmojiInList(List<String> talkinglist){
-        int imoticoncounter = 0;
+        int imoticonCounter = 0;
         for(String talk : talkinglist){
             if(talk.equals("이모티콘")){
-                imoticoncounter++;
+                imoticonCounter++;
             }
         }
-        return imoticoncounter;
+        return imoticonCounter;
     }
 
     /**
@@ -124,76 +117,76 @@ public class AnalyzeService {
      */
     public List<FrequencyResult> calcTime(Map<String, List<String>> talkerToWords, String type) {
         List<FrequencyResult> result = new ArrayList<>();
-        Map<Integer, Integer> talkingtimemap = new HashMap<>();
+        Map<Integer, Integer> talkingTimeMap = new HashMap<>();
 
         for (String talker : talkerToWords.keySet()) {
-            List<String> timelist = talkerToWords.get(talker);
-            talkingtimemap = countTalkingTime(talkingtimemap, timelist);
+            List<String> timeList = talkerToWords.get(talker);
+            talkingTimeMap = countTalkingTime(talkingTimeMap, timeList);
         }
 
         if (type.equals("활발한")) {
-            result = makeAscendingOrderTimeMap(talkingtimemap);
+            result = makeAscendingOrderTimeMap(talkingTimeMap);
         } else if (type.equals("조용한")) {
-            result = makeDescendingOrderTimeMap(talkingtimemap);
+            result = makeDescendingOrderTimeMap(talkingTimeMap);
         }
 
-        return convertDto(result);
+        return result;
 
     }
 
     //대화한 시간을 세서 map에 넣어주는 함수
-    private Map<Integer, Integer> countTalkingTime (Map<Integer, Integer> talkingtimemap, List<String> talkinglist){
+    private Map<Integer, Integer> countTalkingTime (Map<Integer, Integer> talkingTimeMap, List<String> talkingList){
 
-        for(String talk : talkinglist){
+        for(String talk : talkingList){
             if(talk.length() == 8 && talk.contains(":")){
                 int time = Integer.parseInt(talk.substring(3,5));
                 if(talk.contains("오전")){
-                    talkingtimemap = setTime(talkingtimemap, time);
+                    talkingTimeMap = setTime(talkingTimeMap, time);
                 }else if(talk.contains("오후")){
-                    talkingtimemap = setTime(talkingtimemap, time + 12);
+                    talkingTimeMap = setTime(talkingTimeMap, time + 12);
                 }
             }else {
                 continue;
             }
         }
 
-        return talkingtimemap;
+        return talkingTimeMap;
     }
     //주어진 시간이 map에 잇으면 1올리고 없으면 새로 넣는 함수
-    private Map<Integer, Integer>  setTime (Map<Integer, Integer> talkingtimemap, int time ){
-        if(talkingtimemap.containsKey(time)){
-            talkingtimemap.put(time, talkingtimemap.get(time) + 1);
+    private Map<Integer, Integer>  setTime (Map<Integer, Integer> talkingTimeMap, int time ){
+        if(talkingTimeMap.containsKey(time)){
+            talkingTimeMap.put(time, talkingTimeMap.get(time) + 1);
         }else {
-            talkingtimemap.put(time, 1);
+            talkingTimeMap.put(time, 1);
         }
-        return talkingtimemap;
+        return talkingTimeMap;
     }
     //오름차순으로 분석한 시간 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeAscendingOrderTimeMap(Map<Integer, Integer> talkingtimemap){
+    private List<FrequencyResult> makeAscendingOrderTimeMap(Map<Integer, Integer> talkingTimeMap){
         List<FrequencyResult> result = new ArrayList<>();
-        List<Integer> keysetlist = new ArrayList<>(talkingtimemap.keySet());
+        List<Integer> keysetList = new ArrayList<>(talkingTimeMap.keySet());
 
 
-        Collections.sort(keysetlist, (value1, value2) -> (talkingtimemap.get(value1).compareTo(talkingtimemap.get(value2))));
+        Collections.sort(keysetList, (value1, value2) -> (talkingTimeMap.get(value1).compareTo(talkingTimeMap.get(value2))));
 
-        Iterator<Integer> talkingkeysiterator = keysetlist.iterator();
-        while(talkingkeysiterator.hasNext()){
-            Integer time = talkingkeysiterator.next();
-            result.add(new FrequencyResult(Integer.toString(time), talkingtimemap.get(time)));
+        Iterator<Integer> talkingKeysIterator = keysetList.iterator();
+        while(talkingKeysIterator.hasNext()){
+            Integer time = talkingKeysIterator.next();
+            result.add(new FrequencyResult(Integer.toString(time), talkingTimeMap.get(time)));
         }
         return result;
     }
     //내림차순으로 분석한 시간 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeDescendingOrderTimeMap(Map<Integer, Integer> talkingtimemap){
+    private List<FrequencyResult> makeDescendingOrderTimeMap(Map<Integer, Integer> talkingTimeMap){
         List<FrequencyResult> result = new ArrayList<>();
-        List<Integer> keysetlist = new ArrayList<>(talkingtimemap.keySet());
+        List<Integer> keysetList = new ArrayList<>(talkingTimeMap.keySet());
 
-        Collections.sort(keysetlist, (value1, value2) -> (talkingtimemap.get(value2).compareTo(talkingtimemap.get(value1))));
+        Collections.sort(keysetList, (value1, value2) -> (talkingTimeMap.get(value2).compareTo(talkingTimeMap.get(value1))));
 
-        Iterator<Integer> talkingkeysiterator = keysetlist.iterator();
+        Iterator<Integer> talkingkeysiterator = keysetList.iterator();
         while(talkingkeysiterator.hasNext()){
             Integer time = talkingkeysiterator.next();
-            result.add(new FrequencyResult(Integer.toString(time), talkingtimemap.get(time)));
+            result.add(new FrequencyResult(Integer.toString(time), talkingTimeMap.get(time)));
         }
         return result;
     }
