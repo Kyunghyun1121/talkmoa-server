@@ -11,7 +11,6 @@ import java.util.*;
  * txt 파일을 열어서 단어를 가공해주는 서비스
  * 대화자 : 단어(토큰) 리스트로 매핑해주고, DB에 저장해줌
  */
-
 @Slf4j
 @Service
 public class ParseService {
@@ -19,7 +18,7 @@ public class ParseService {
             System.getProperty("user.dir") + "/temp/target.txt";
 
     // txt 파일을 읽기 위해서 일단 임시로 저장함
-    private void saveFile(MultipartFile multipartFile) throws IOException {
+    public void saveFile(MultipartFile multipartFile) throws IOException {
         File file = new File(TEMP_SAVED_PATH);
         multipartFile.transferTo(file);
     }
@@ -77,34 +76,37 @@ public class ParseService {
     }
 
     // 대화자 추출
-    // TODO : 정확한 대화자만 추출해야하는데 잘 안됨 -> 개선 필요
     public List<String> getTalkers() throws IOException {
         HashSet<String> result = new HashSet<>();
         BufferedReader reader = openFile();
         while (true) {
             String line = reader.readLine();
             if (line == null) break;
-            StringTokenizer tokenizer = new StringTokenizer(line, "[]");
-            while (tokenizer.hasMoreTokens()) {
-                String t = tokenizer.nextToken();
-                if (!t.startsWith(" ") && !t.startsWith("오전") && !t.startsWith("오후")) {
-                    result.add(t);
-                }
+            if (line.startsWith("[")) {
+                int lastIndex = line.indexOf("]");
+                if (lastIndex == -1) continue;
+                String talkerCandidate = line.substring(1, lastIndex);
+                if (talkerCandidate.length() >= 10) continue;
+                result.add(talkerCandidate);
             }
         }
         reader.close();
-
-        log.info("셋 = {}", result);
         return result.stream().toList();
     }
 
     // 방 이름 추출
     public String getRoomName() throws IOException {
-        return openFile().readLine().split(" ")[0];
+        String[] firstLine = openFile().readLine().split(" ");
+        StringBuilder chatRoomName = new StringBuilder();
+        for (String word : firstLine) {
+            if (word.startsWith("님과")) break;
+            chatRoomName.append(" ").append(word);
+        }
+        return chatRoomName.substring(1); // 맨 앞 공백 제거 후 리턴
     }
 
     //  대화자 (1) : 대화 한 단어들 (리스트) 로 매핑 지어서 돌려주는 함수
-    private Map<String, List<String>> mapTalkerToLine(List<String> talkers, List<String> slicedPerLine) {
+    private Map<String, List<String>> mapTalkerToToken(List<String> talkers, List<String> slicedPerLine) {
         Map<String, List<String>> result = new HashMap<>();
         for (String line : slicedPerLine) {
             for (String talker : talkers) {
@@ -121,15 +123,30 @@ public class ParseService {
         return result;
     }
 
+    private Map<String, List<String>> mapTalkerToLine(List<String> talkers, List<String> slicedPerLine) {
+        Map<String, List<String>> result = new HashMap<>();
+        for (String line : slicedPerLine) {
+            for (String talker : talkers) {
+                if (line.contains(talker)) {
+                    if (!result.containsKey(talker)) {
+                        List<String> lineList = new ArrayList<>();
+                        lineList.add(line);
+                        result.put(talker, lineList);
+                    } else {
+                        result.get(talker).add(line);
+                    }
+                }
+            } // talkers loop end
+        } // line loop end
+        return result;
+    }
+
     /**
      * 해당 서비스 핵심 함수
      * 다른 객체들은 ParsingService.parse(MultipartFile file) 을 호출해서 얻은 결과물에만 사용하고
      * 그 내부 로직은 몰라야 한다 (캡슐화)
      */
-    public Map<String, List<String>> parse(MultipartFile multipartFile) throws IOException {
-        // multipartFile -> File 로 저장한다
-        saveFile(multipartFile);
-
+    public Map<String, List<String>> parseTalkerToToken() throws IOException {
         // txt 파일을 열어서 라인별로 자른다
         List<String> slicedResult = slicePerLine();
 
@@ -137,6 +154,16 @@ public class ParseService {
         List<String> talkers = getTalkers();
 
         // 대화자(1) : 말한 단어(토큰화된 리스트) 를 매핑한다
+        return mapTalkerToToken(talkers, slicedResult);
+    }
+
+    public Map<String, List<String>> parseTalkerToLine() throws IOException {
+        // txt 파일을 열어서 라인별로 자른다
+        List<String> slicedResult = slicePerLine();
+
+        // txt 파일에서 대화자를 추출한다
+        List<String> talkers = getTalkers();
+
         return mapTalkerToLine(talkers, slicedResult);
     }
 }

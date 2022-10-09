@@ -31,20 +31,20 @@ public class WordController {
     public ResultResponse upload(@RequestParam("file") MultipartFile[] files) throws IOException {
         // 일단 파일들로 받지만, 하나의 파일만 처리하도록 구현한다
 
-        // 대화자 : 토큰 리스트 으로 매핑
-        Map<String, List<String>> talkerToWords = parseService.parse(files[0]);
+        // 대화자 : 토큰, 라인 으로 매핑
+        parseService.saveFile(files[0]);
+        Map<String, List<String>> talkerToToken = parseService.parseTalkerToToken();
+        Map<String, List<String>> talkerToLine = parseService.parseTalkerToLine();
 
         // 단어를 DB에 저장
 //        wordService.save(parseService.getRoomName(), parseService.tokenizeTotal());
 
-        log.info("채팅방 = {}, 대화자들 = {}", parseService.getRoomName(), parseService.getTalkers());
-
         // 분석 진행
-        List<FrequencyResult> total = analyzingService.calcTotal(talkerToWords);
-        List<FrequencyResult> media = analyzingService.calcMedia(talkerToWords);
-        List<FrequencyResult> emoji = analyzingService.calcEmoji(talkerToWords);
-        List<FrequencyResult> low = analyzingService.calcTime(talkerToWords, "low");
-        List<FrequencyResult> high = analyzingService.calcTime(talkerToWords, "high");
+        List<FrequencyResult> total = analyzingService.calcTotal(talkerToToken);
+        List<FrequencyResult> media = analyzingService.calcMedia(talkerToToken);
+        List<FrequencyResult> emoji = analyzingService.calcEmoji(talkerToToken);
+        List<FrequencyResult> low = analyzingService.calcTime(talkerToLine, "low");
+        List<FrequencyResult> high = analyzingService.calcTime(talkerToLine, "high");
 
         // 분석 결과를 DTO 로 응답
         return ResultResponse.builder()
