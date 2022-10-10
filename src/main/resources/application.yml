@@ -5,6 +5,10 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
+        jdbc:
+          batch_size: 10000
+        order_inserts: true
+        order_updates: true
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
 
   mvc:

@@ -22,7 +22,7 @@ import java.util.Map;
 public class WordController {
     private final AnalyzeService analyzingService;
     private final ParseService parseService;
-    private final PersistService wordService;
+    private final PersistService persistService;
 
     /**
      * 대화내역 txt 파일을 업로드 -> 대화 내용 분석
@@ -37,7 +37,8 @@ public class WordController {
         Map<String, List<String>> talkerToLine = parseService.parseTalkerToLine();
 
         // 단어를 DB에 저장
-//        wordService.save(parseService.getRoomName(), parseService.tokenizeTotal());
+        persistService.saveAll(parseService.tokenizeTotal());
+
 
         // 분석 진행
         List<FrequencyResult> total = analyzingService.calcTotal(talkerToToken);
