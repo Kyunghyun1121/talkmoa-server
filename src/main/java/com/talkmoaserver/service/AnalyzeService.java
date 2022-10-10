@@ -63,16 +63,11 @@ public class AnalyzeService {
         List<FrequencyResult> result = new ArrayList<>();
         for (String talker : talkerToWords.keySet()) {
             List<String> talkingList = talkerToWords.get(talker);
-            result.add(new FrequencyResult(talker, countEmojiInList(talkingList)));
+            int emojiCounter = 0;
+            for (String talk : talkingList) if (talk.equals("이모티콘")) emojiCounter++;
+            result.add(new FrequencyResult(talker, emojiCounter));
         }
         return result;
-    }
-
-    // 이모티콘 개수를 세주는 함수
-    private int countEmojiInList(List<String> talkingList){
-        int emojiCounter = 0;
-        for (String talk : talkingList) if (talk.equals("이모티콘")) emojiCounter++;
-        return emojiCounter;
     }
 
     /**
@@ -87,8 +82,8 @@ public class AnalyzeService {
             countTalkingTime(talkingTimeMap, timeList);
         }
         return switch (type) {
-            case "high" -> makeAscendingOrderTimeMap(talkingTimeMap);
-            case "low" -> makeDescendingOrderTimeMap(talkingTimeMap);
+            case "high" -> makeAscendingOrderMap(talkingTimeMap);
+            case "low" -> makeDescendingOrderMap(talkingTimeMap);
             default -> null;
         };
     }
@@ -96,7 +91,7 @@ public class AnalyzeService {
     // 대화한 시간을 세서 map 에 넣어주는 함수
     private void countTalkingTime(Map<Integer, Integer> talkingTimeMap, List<String> talkingList) {
         for (String talk : talkingList) {
-            if (talk.length() == 8 && talk.contains(":")) {
+            if ((talk.contains("오전") || talk.contains("오후")) && talk.contains(":")) {
                 int time = Integer.parseInt(talk.substring(3, 5));
                 if (talk.contains("오전")) setTime(talkingTimeMap, time);
                 else if (talk.contains("오후")) setTime(talkingTimeMap, time + 12);
@@ -112,8 +107,8 @@ public class AnalyzeService {
             talkingTimeMap.put(time, 1);
     }
 
-    // 오름차순으로 분석한 시간 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeAscendingOrderTimeMap(Map<Integer, Integer> talkingTimeMap){
+    // 오름차순으로 분석한 맵을 정렬해주는 함수
+    private List<FrequencyResult> makeAscendingOrderMap(Map<Integer, Integer> talkingTimeMap){
         List<FrequencyResult> result = new ArrayList<>();
         List<Integer> keySetList = new ArrayList<>(talkingTimeMap.keySet());
 
@@ -125,8 +120,8 @@ public class AnalyzeService {
         return result;
     }
 
-    // 내림차순으로 분석한 시간 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeDescendingOrderTimeMap(Map<Integer, Integer> talkingTimeMap){
+    // 내림차순으로 분석한 맵을 정렬해주는 함수
+    private List<FrequencyResult> makeDescendingOrderMap(Map<Integer, Integer> talkingTimeMap){
         List<FrequencyResult> result = new ArrayList<>();
         List<Integer> keySetList = new ArrayList<>(talkingTimeMap.keySet());
 
