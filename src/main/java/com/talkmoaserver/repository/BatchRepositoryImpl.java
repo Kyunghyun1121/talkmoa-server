@@ -17,11 +17,12 @@ public class BatchRepositoryImpl implements BatchRepository {
 
     @Override
     public void batchInsert(List<Word> words) {
-        String sql = "INSERT INTO word (`WORD`) VALUES (?)";
+        String sql = "insert into word (`keyword`, `frequency`) values (?, ?)";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setString(1, words.get(i).getWord());
+                ps.setString(1, words.get(i).getKeyword());
+                ps.setInt(2, words.get(i).getFrequency());
             }
             @Override
             public int getBatchSize() {

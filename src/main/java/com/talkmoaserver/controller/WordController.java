@@ -3,7 +3,7 @@ package com.talkmoaserver.controller;
 import com.talkmoaserver.dto.FrequencyResult;
 import com.talkmoaserver.dto.ResultResponse;
 import com.talkmoaserver.service.AnalyzeService;
-import com.talkmoaserver.service.ParseService;
+import com.talkmoaserver.service.ExtractService;
 import com.talkmoaserver.service.PersistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WordController {
     private final AnalyzeService analyzingService;
-    private final ParseService parseService;
+    private final ExtractService extractService;
     private final PersistService persistService;
 
     /**
@@ -32,13 +32,12 @@ public class WordController {
         // 일단 파일들로 받지만, 하나의 파일만 처리하도록 구현한다
 
         // 대화자 : 토큰, 라인 으로 매핑
-        parseService.saveFile(files[0]);
-        Map<String, List<String>> talkerToToken = parseService.parseTalkerToToken();
-        Map<String, List<String>> talkerToLine = parseService.parseTalkerToLine();
+        extractService.saveFile(files[0]);
+        Map<String, List<String>> talkerToToken = extractService.getTalkerToToken();
+        Map<String, List<String>> talkerToLine = extractService.getTalkerToLine();
 
         // 단어를 DB에 저장
-        persistService.saveAll(parseService.tokenizeTotal());
-
+        persistService.saveAll(talkerToToken);
 
         // 분석 진행
         List<FrequencyResult> total = analyzingService.calcTotal(talkerToToken);
@@ -49,6 +48,8 @@ public class WordController {
 
         // 분석 결과를 DTO 로 응답
         return ResultResponse.builder()
+                .chatRoomName(extractService.getRoomName())
+                .talkers(extractService.getTalkers())
                 .total(total)
                 .media(media)
                 .emoji(emoji)
