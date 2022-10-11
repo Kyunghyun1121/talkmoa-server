@@ -23,7 +23,7 @@ public class AnalyzeService {
     }
 
     // 대화횟수를 세주는 함수
-    private int countTalkingInList(List<String> talkingList){
+    private int countTalkingInList(List<String> talkingList) {
         int talkCounter = 0;
         for (String talk : talkingList) {
             if (!talk.equals("사진") && !talk.equals("이모티콘") && !talk.equals("동영상") && !talk.contains("파일:")) {
@@ -47,7 +47,7 @@ public class AnalyzeService {
     }
 
     //미디어 개수를 세주는 함수
-    private int countMediaInList(List<String> talkingList){
+    private int countMediaInList(List<String> talkingList) {
         int mediaCounter = 0;
         for (String talk : talkingList) {
             if (talk.equals("사진") || talk.equals("동영상") || talk.contains("파일:"))
@@ -91,8 +91,26 @@ public class AnalyzeService {
     // 대화한 시간을 세서 map 에 넣어주는 함수
     private void countTalkingTime(Map<Integer, Integer> talkingTimeMap, List<String> talkingList) {
         for (String talk : talkingList) {
+            int timeWordPositionStart = 0;
+            int timeWordPositionEnd = 0;
+            if (talk.startsWith("[")) {
+                char[] charTalk = talk.toCharArray();
+                for (int i = 1; i <= talk.length(); i++) {
+                    if (charTalk[i] == '[') {
+                        if(charTalk[i + 3] == ' '){
+                            timeWordPositionStart = i + 4;
+                            timeWordPositionEnd = i + 5;
+                        }else{
+                            timeWordPositionStart = i + 3;
+                            timeWordPositionEnd = i + 5;
+                        }
+                        break;
+                    }
+                }
+            }
+
             if ((talk.contains("오전") || talk.contains("오후")) && talk.contains(":")) {
-                int time = Integer.parseInt(talk.substring(3, 5));
+                int time = Integer.parseInt(talk.substring(timeWordPositionStart, timeWordPositionEnd));
                 if (talk.contains("오전")) setTime(talkingTimeMap, time);
                 else if (talk.contains("오후")) setTime(talkingTimeMap, time + 12);
             }
@@ -108,7 +126,7 @@ public class AnalyzeService {
     }
 
     // 오름차순으로 분석한 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeAscendingOrderMap(Map<Integer, Integer> talkingTimeMap){
+    private List<FrequencyResult> makeAscendingOrderMap(Map<Integer, Integer> talkingTimeMap) {
         List<FrequencyResult> result = new ArrayList<>();
         List<Integer> keySetList = new ArrayList<>(talkingTimeMap.keySet());
 
@@ -121,7 +139,7 @@ public class AnalyzeService {
     }
 
     // 내림차순으로 분석한 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeDescendingOrderMap(Map<Integer, Integer> talkingTimeMap){
+    private List<FrequencyResult> makeDescendingOrderMap(Map<Integer, Integer> talkingTimeMap) {
         List<FrequencyResult> result = new ArrayList<>();
         List<Integer> keySetList = new ArrayList<>(talkingTimeMap.keySet());
 
