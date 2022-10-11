@@ -13,7 +13,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-public class ParseService {
+public class ExtractService {
     public static final String TEMP_SAVED_PATH =
             System.getProperty("user.dir") + "/temp/target.txt";
 
@@ -29,12 +29,13 @@ public class ParseService {
 
     // 대화내역(txt) 파일을 라인 별로 자르는 함수
     private List<String> slicePerLine() throws IOException {
+//        log.info("slicePerLine 호출");
+//        long start = System.currentTimeMillis();
         ArrayList<String> result = new ArrayList<>();
         BufferedReader reader = openFile();
         while (true) {
             String line = reader.readLine();
             if (line == null) break;
-
             // 한 사람이 길게 쓴 문자까지 탐지해서 라인 나누기
             if (!line.startsWith("[") && !result.isEmpty() && !line.startsWith("------")) {
                 String lastLine = result.get(result.size() - 1);
@@ -43,35 +44,24 @@ public class ParseService {
                 result.add(newLine);
                 continue;
             }
-
             result.add(line);
         }
         reader.close();
+//        long end = System.currentTimeMillis();
+//        log.info("slicedPerLine 수행 시간 = {}s", (end - start)/1000.0);
         return result;
     }
 
     // 특정 라인을 토큰화 하는 함수
-    private List<String> tokenizePerLine(String line) {
-        StringTokenizer tokenizer = new StringTokenizer(line, " \n,[]");
+    private List<String> tokenizePerLine(String talker, String line) {
+        String exclude = " \n,[]오전오후"+talker;
+        StringTokenizer tokenizer = new StringTokenizer(line, exclude);
         List<String> result = new ArrayList<>();
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
+            if (token.contains(":") || token.startsWith("--------")) continue;
             result.add(token);
         }
-        return result;
-    }
-
-    // 대화내역(txt) 전체를 토큰화 하는 함수
-    // TODO : 현재 단어 추출만 하지 못함 -> 성능 개선 필요
-    public List<String> tokenizeTotal() throws IOException {
-        List<String> result = new ArrayList<>();
-        BufferedReader reader = openFile();
-        while (true) {
-            String line = reader.readLine();
-            if (line == null) break;
-            result.addAll(tokenizePerLine(line));
-        }
-        reader.close();
         return result;
     }
 
@@ -107,11 +97,12 @@ public class ParseService {
 
     //  대화자 (1) : 대화 한 단어들 (리스트) 로 매핑 지어서 돌려주는 함수
     private Map<String, List<String>> mapTalkerToToken(List<String> talkers, List<String> slicedPerLine) {
+//        long start = System.currentTimeMillis();
         Map<String, List<String>> result = new HashMap<>();
         for (String line : slicedPerLine) {
             for (String talker : talkers) {
                 if (line.contains(talker)) {
-                    List<String> tokens = tokenizePerLine(line);
+                    List<String> tokens = tokenizePerLine(talker, line);
                     if (!result.containsKey(talker)) {
                         result.put(talker, tokens);
                     } else {
@@ -120,10 +111,13 @@ public class ParseService {
                 }
             } // talker loop end
         } // line loop end
+//        long end = System.currentTimeMillis();
+//        log.info("mapTalkerToToken 수행 시간 = {}s", (end - start)/1000.0);
         return result;
     }
 
     private Map<String, List<String>> mapTalkerToLine(List<String> talkers, List<String> slicedPerLine) {
+//        long start = System.currentTimeMillis();
         Map<String, List<String>> result = new HashMap<>();
         for (String line : slicedPerLine) {
             for (String talker : talkers) {
@@ -138,15 +132,15 @@ public class ParseService {
                 }
             } // talkers loop end
         } // line loop end
+//        long end = System.currentTimeMillis();
+//        log.info("mapTalkerToLine 수행 시간 = {}s", (end - start)/1000.0);
         return result;
     }
 
     /**
-     * 해당 서비스 핵심 함수
-     * 다른 객체들은 ParsingService.parse(MultipartFile file) 을 호출해서 얻은 결과물에만 사용하고
-     * 그 내부 로직은 몰라야 한다 (캡슐화)
+     해당 서비스 핵심 함수
      */
-    public Map<String, List<String>> parseTalkerToToken() throws IOException {
+    public Map<String, List<String>> getTalkerToToken() throws IOException {
         // txt 파일을 열어서 라인별로 자른다
         List<String> slicedResult = slicePerLine();
 
@@ -157,7 +151,7 @@ public class ParseService {
         return mapTalkerToToken(talkers, slicedResult);
     }
 
-    public Map<String, List<String>> parseTalkerToLine() throws IOException {
+    public Map<String, List<String>> getTalkerToLine() throws IOException {
         // txt 파일을 열어서 라인별로 자른다
         List<String> slicedResult = slicePerLine();
 
