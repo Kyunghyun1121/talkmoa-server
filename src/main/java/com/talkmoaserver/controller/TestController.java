@@ -29,16 +29,20 @@ public class TestController {
         tempWords.add("바보");
         tempWords.add("사진");
         tempWords.add("부리또는 맛있다.");
+        tempWords.add("오전 12:21");tempWords.add("오전 10:21");tempWords.add("오전 02:21");
+        tempWords.add("오전 11:21");tempWords.add("오전 12:21");tempWords.add("오전 12:21");
+        tempWords.add("오후 12:21");tempWords.add("오후 11:21");tempWords.add("오전 02:21");
         temp.put("노경현", tempWords);
         // 결과 = 노경현 : 1 media라면
 
         log.info("노경현 결과물 = {}", temp); // 실무용
         System.out.println("노경현 결과물 = " + temp); // 이건 실무에서 쓰면 암살당함
 
-        List<FrequencyResult> frequencyResults = analyzeService.calcMedia(temp);
+        List<FrequencyResult> frequencyResults = analyzeService.calcTime(temp, "low");
+        List<FrequencyResult> TfrequencyResults = analyzeService.calcTime(temp, "high");
 //        List<FrequencyResult> result = new ArrayList<>();
 //        result.add(new FrequencyResult("노경현", 123123123));
-        return frequencyResults;
+        return TfrequencyResults;
     }
 
     @PostMapping("/test/upload")
