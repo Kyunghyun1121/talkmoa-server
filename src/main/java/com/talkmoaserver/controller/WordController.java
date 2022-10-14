@@ -35,22 +35,25 @@ public class WordController {
         extractService.saveFile(files[0]);
         Map<String, List<String>> talkerToToken = extractService.getTalkerToToken();
         Map<String, List<String>> talkerToLine = extractService.getTalkerToLine();
-
+        System.out.println(talkerToLine);
         // 단어를 DB에 저장
         persistService.saveAll(talkerToToken);
 
         // 분석 진행
         List<FrequencyResult> total = analyzingService.calcTotal(talkerToToken);
+        List<FrequencyResult> ranking = analyzingService.calcManyUseWord(talkerToToken);
         List<FrequencyResult> media = analyzingService.calcMedia(talkerToToken);
         List<FrequencyResult> emoji = analyzingService.calcEmoji(talkerToToken);
         List<FrequencyResult> low = analyzingService.calcTime(talkerToLine, "low");
         List<FrequencyResult> high = analyzingService.calcTime(talkerToLine, "high");
+
 
         // 분석 결과를 DTO 로 응답
         return ResultResponse.builder()
                 .chatRoomName(extractService.getRoomName())
                 .talkers(extractService.getTalkers())
                 .total(total)
+                .wordRanking(ranking)
                 .media(media)
                 .emoji(emoji)
                 .lowPeriod(low)

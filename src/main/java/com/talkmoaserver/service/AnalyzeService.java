@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,50 @@ public class AnalyzeService {
         }
         return talkCounter;
     }
+
+
+    /**
+     * 가장 많이 사용한 단어 10개 랭킹화
+     */
+    public List<FrequencyResult> calcManyUseWord(Map<String, List<String>> talkerToWords) {
+        List<FrequencyResult> result = new ArrayList<>();
+        List<String> allTalkingList = new ArrayList<>();
+
+        for (String talkList : talkerToWords.keySet()) {
+            allTalkingList = Stream.concat(allTalkingList.stream(), talkerToWords.get(talkList).stream())
+                    .collect(Collectors.toList());
+        }
+
+        Map<String, Integer> wordLanking = new HashMap<>();
+        for (String talk : allTalkingList) {
+            if (!talk.equals("사진") && !talk.equals("이모티콘") && !talk.equals("동영상") && !talk.contains("파일:")) {
+                if ((!talk.contains("오전") || !talk.contains("오후")) && !talk.contains(":")) {
+                    if (wordLanking.containsKey(talk)) {
+                        int value = wordLanking.get(talk);
+                        wordLanking.put(talk, value + 1);
+                    } else {
+                        wordLanking.put(talk, 1);
+                    }
+                }
+            }
+        }
+
+        List<String> keySetList = new ArrayList<>(wordLanking.keySet());
+
+        keySetList.sort((value1, value2) -> (wordLanking.get(value2).compareTo(wordLanking.get(value1))));
+
+        int rank = 1;
+        String ranking = new String();
+        for (String word : keySetList) {
+            if (rank > 10) break;
+            result.add(new FrequencyResult(word, wordLanking.get(word)));
+            rank++;
+        }
+
+
+        return result;
+    }
+
 
     /**
      * 2. 미디어(사진, 동영상, 첨부파일)를 주고받은 횟수 추출 -> 대화자 : 횟수
@@ -81,11 +127,20 @@ public class AnalyzeService {
             List<String> timeList = talkerToLine.get(talker);
             countTalkingTime(talkingTimeMap, timeList);
         }
-        return switch (type) {
-            case "high" -> makeAscendingOrderMap(talkingTimeMap);
-            case "low" -> makeDescendingOrderMap(talkingTimeMap);
-            default -> null;
-        };
+
+        List<Integer> keySetList = new ArrayList<>(talkingTimeMap.keySet());
+
+        switch (type) {
+            case "high" ->
+                    keySetList.sort((value1, value2) -> (talkingTimeMap.get(value2).compareTo(talkingTimeMap.get(value1))));
+            case "low" -> keySetList.sort(Comparator.comparing(talkingTimeMap::get));
+        }
+        ;
+
+        List<FrequencyResult> result = new ArrayList<>();
+        for (Integer time : keySetList)
+            result.add(new FrequencyResult(Integer.toString(time), talkingTimeMap.get(time)));
+        return result;
     }
 
     // 대화한 시간을 세서 map 에 넣어주는 함수
@@ -97,10 +152,10 @@ public class AnalyzeService {
                 char[] charTalk = talk.toCharArray();
                 for (int i = 1; i <= talk.length(); i++) {
                     if (charTalk[i] == '[') {
-                        if(charTalk[i + 3] == ' '){
+                        if (charTalk[i + 3] == ' ') {
                             timeWordPositionStart = i + 4;
                             timeWordPositionEnd = i + 5;
-                        }else{
+                        } else {
                             timeWordPositionStart = i + 3;
                             timeWordPositionEnd = i + 5;
                         }
@@ -125,29 +180,5 @@ public class AnalyzeService {
             talkingTimeMap.put(time, 1);
     }
 
-    // 오름차순으로 분석한 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeAscendingOrderMap(Map<Integer, Integer> talkingTimeMap) {
-        List<FrequencyResult> result = new ArrayList<>();
-        List<Integer> keySetList = new ArrayList<>(talkingTimeMap.keySet());
 
-        keySetList.sort(Comparator.comparing(talkingTimeMap::get));
-
-        for (Integer time : keySetList)
-            result.add(new FrequencyResult(Integer.toString(time), talkingTimeMap.get(time)));
-
-        return result;
-    }
-
-    // 내림차순으로 분석한 맵을 정렬해주는 함수
-    private List<FrequencyResult> makeDescendingOrderMap(Map<Integer, Integer> talkingTimeMap) {
-        List<FrequencyResult> result = new ArrayList<>();
-        List<Integer> keySetList = new ArrayList<>(talkingTimeMap.keySet());
-
-        keySetList.sort((value1, value2) -> (talkingTimeMap.get(value2).compareTo(talkingTimeMap.get(value1))));
-
-        for (Integer time : keySetList)
-            result.add(new FrequencyResult(Integer.toString(time), talkingTimeMap.get(time)));
-
-        return result;
-    }
 }

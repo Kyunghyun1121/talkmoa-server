@@ -12,6 +12,7 @@ public record ResultResponse(
         String chatRoomName,
         List<String> talkers,
         List<FrequencyResult> total,
+        List<FrequencyResult> wordRanking,
         List<FrequencyResult> media,
         List<FrequencyResult> emoji,
         List<FrequencyResult> lowPeriod,
