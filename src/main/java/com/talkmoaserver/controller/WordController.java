@@ -35,9 +35,9 @@ public class WordController {
         extractService.saveFile(files[0]);
         Map<String, List<String>> talkerToToken = extractService.getTalkerToToken();
         Map<String, List<String>> talkerToLine = extractService.getTalkerToLine();
-        System.out.println(talkerToLine);
+
         // 단어를 DB에 저장
-        persistService.saveAll(talkerToToken);
+//        persistService.saveAll(talkerToToken);
 
         // 분석 진행
         List<FrequencyResult> total = analyzingService.calcTotal(talkerToToken);
@@ -60,14 +60,4 @@ public class WordController {
                 .highPeriod(high)
                 .build();
     }
-
-    /**
-     * TODO : 전체 사용자 단어 랭킹(통계) 조회
-     */
-    //@GetMapping("/total-rank")
-    //public ResultResponse getTotalRank() {
-    //    return new ResultResponse();
-    //}
-    
-    
 }

@@ -40,11 +40,11 @@ public class PersistService {
             long start2 = System.currentTimeMillis();
             wordRepository.batchInsert(newEntities);
             long end2 = System.currentTimeMillis();
-            log.info("새로 넣는 총 단어 = {}, batchInsert 수행 시간 시간 = {}s", newEntities.size(), (end2 - start2)/1000.0);
+            log.info("새로 넣는 총 단어 = {}, batchInsert 수행 시간 시간 = {}s", newEntities.size(), (end2 - start2) / 1000.0);
 
         }
         long end = System.currentTimeMillis();
-        log.info("총 단어 = {}, 수행 시간 = {}s", totalWords, (end - start)/1000.0);
+        log.info("총 단어 = {}, 수행 시간 = {}s", totalWords, (end - start) / 1000.0);
     }
 
     public Long countAll() {
@@ -59,9 +59,4 @@ public class PersistService {
         }
         return count;
     }
-
-    // TODO : 전체 사용자 단어 랭킹 조회 메서드 구현 해야함
-//    public ResultResponse getTotalWordRank() {
-//        return new ResultResponse(null, null);
-//    }
 }

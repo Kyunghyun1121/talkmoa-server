@@ -52,12 +52,12 @@ public class TestController {
         total.add(new FrequencyResult("김원철", 123));
 
         List<FrequencyResult> media = new ArrayList<>();
-        media.add(new FrequencyResult("이준형", 11));
-        media.add(new FrequencyResult("김원철", 23));
+        media.add(new FrequencyResult("이준형", 23));
+        media.add(new FrequencyResult("김원철", 1));
 
         List<FrequencyResult> emoji = new ArrayList<>();
-        emoji.add(new FrequencyResult("이준형", 0));
-        emoji.add(new FrequencyResult("김원철", 100));
+        emoji.add(new FrequencyResult("이준형", 100));
+        emoji.add(new FrequencyResult("김원철", 10));
 
         List<FrequencyResult> low = new ArrayList<>();
         low.add(new FrequencyResult("10시~11시", 32));
@@ -67,7 +67,13 @@ public class TestController {
         high.add(new FrequencyResult("15시~16시", 1));
         high.add(new FrequencyResult("17시~18시", 2));
 
+        List<String> talkers = new ArrayList<>();
+        talkers.add("김원철");
+        talkers.add("이준형");
+
         return ResultResponse.builder()
+                .chatRoomName("팀프1")
+                .talkers(talkers)
                 .total(total)
                 .media(media)
                 .emoji(emoji)

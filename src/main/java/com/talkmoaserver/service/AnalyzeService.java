@@ -49,29 +49,28 @@ public class AnalyzeService {
                     .collect(Collectors.toList());
         }
 
-        Map<String, Integer> wordLanking = new HashMap<>();
+        Map<String, Integer> wordRanking = new HashMap<>();
         for (String talk : allTalkingList) {
             if (!talk.equals("사진") && !talk.equals("이모티콘") && !talk.equals("동영상") && !talk.contains("파일:")) {
                 if ((!talk.contains("오전") || !talk.contains("오후")) && !talk.contains(":")) {
-                    if (wordLanking.containsKey(talk)) {
-                        int value = wordLanking.get(talk);
-                        wordLanking.put(talk, value + 1);
+                    if (wordRanking.containsKey(talk)) {
+                        int value = wordRanking.get(talk);
+                        wordRanking.put(talk, value + 1);
                     } else {
-                        wordLanking.put(talk, 1);
+                        wordRanking.put(talk, 1);
                     }
                 }
             }
         }
 
-        List<String> keySetList = new ArrayList<>(wordLanking.keySet());
+        List<String> keySetList = new ArrayList<>(wordRanking.keySet());
 
-        keySetList.sort((value1, value2) -> (wordLanking.get(value2).compareTo(wordLanking.get(value1))));
+        keySetList.sort((value1, value2) -> (wordRanking.get(value2).compareTo(wordRanking.get(value1))));
 
         int rank = 1;
-        String ranking = new String();
         for (String word : keySetList) {
             if (rank > 10) break;
-            result.add(new FrequencyResult(word, wordLanking.get(word)));
+            result.add(new FrequencyResult(word, wordRanking.get(word)));
             rank++;
         }
 
@@ -135,40 +134,45 @@ public class AnalyzeService {
                     keySetList.sort((value1, value2) -> (talkingTimeMap.get(value2).compareTo(talkingTimeMap.get(value1))));
             case "low" -> keySetList.sort(Comparator.comparing(talkingTimeMap::get));
         }
-        ;
 
         List<FrequencyResult> result = new ArrayList<>();
-        for (Integer time : keySetList)
-            result.add(new FrequencyResult(Integer.toString(time), talkingTimeMap.get(time)));
+        int i = 0;
+        for (Integer time : keySetList) {
+            if (i > 5) break;
+            String timePeriod = time + "시~" + (time+1) + "시";
+            result.add(new FrequencyResult(timePeriod, talkingTimeMap.get(time)));
+            i++;
+        }
         return result;
     }
 
     // 대화한 시간을 세서 map 에 넣어주는 함수
     private void countTalkingTime(Map<Integer, Integer> talkingTimeMap, List<String> talkingList) {
         for (String talk : talkingList) {
-            int timeWordPositionStart = 0;
-            int timeWordPositionEnd = 0;
-            if (talk.startsWith("[")) {
-                char[] charTalk = talk.toCharArray();
-                for (int i = 1; i <= talk.length(); i++) {
-                    if (charTalk[i] == '[') {
-                        if (charTalk[i + 3] == ' ') {
-                            timeWordPositionStart = i + 4;
+            try {
+                int timeWordPositionStart = 0;
+                int timeWordPositionEnd = 0;
+                if (talk.startsWith("[")) {
+                    char[] charTalk = talk.toCharArray();
+                    for (int i = 1; i <= talk.length(); i++) {
+                        if (charTalk[i] == '[') {
+                            if (charTalk[i + 3] == ' ') {
+                                timeWordPositionStart = i + 4;
+                            } else {
+                                timeWordPositionStart = i + 3;
+                            }
                             timeWordPositionEnd = i + 5;
-                        } else {
-                            timeWordPositionStart = i + 3;
-                            timeWordPositionEnd = i + 5;
+                            break;
                         }
-                        break;
                     }
                 }
-            }
 
-            if ((talk.contains("오전") || talk.contains("오후")) && talk.contains(":")) {
-                int time = Integer.parseInt(talk.substring(timeWordPositionStart, timeWordPositionEnd));
-                if (talk.contains("오전")) setTime(talkingTimeMap, time);
-                else if (talk.contains("오후")) setTime(talkingTimeMap, time + 12);
-            }
+                if ((talk.contains("오전") || talk.contains("오후")) && talk.contains(":")) {
+                    int time = Integer.parseInt(talk.substring(timeWordPositionStart, timeWordPositionEnd));
+                    if (talk.contains("오전")) setTime(talkingTimeMap, time);
+                    else if (talk.contains("오후")) setTime(talkingTimeMap, time + 12);
+                }
+            } catch (ArrayIndexOutOfBoundsException ignored) {}
         }
     }
 

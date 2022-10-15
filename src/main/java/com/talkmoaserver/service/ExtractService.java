@@ -86,12 +86,14 @@ public class ExtractService {
 
     // 방 이름 추출
     public String getRoomName() throws IOException {
-        String[] firstLine = openFile().readLine().split(" ");
+        BufferedReader reader = openFile();
+        String[] firstLine = reader.readLine().split(" ");
         StringBuilder chatRoomName = new StringBuilder();
         for (String word : firstLine) {
             if (word.startsWith("님과")) break;
             chatRoomName.append(" ").append(word);
         }
+        reader.close();
         return chatRoomName.substring(1); // 맨 앞 공백 제거 후 리턴
     }
 
