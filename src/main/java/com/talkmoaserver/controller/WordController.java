@@ -5,11 +5,10 @@ import com.talkmoaserver.dto.ResultResponse;
 import com.talkmoaserver.service.AnalyzeService;
 import com.talkmoaserver.service.ExtractService;
 import com.talkmoaserver.service.PersistService;
+import com.talkmoaserver.service.WordStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -23,6 +22,7 @@ public class WordController {
     private final AnalyzeService analyzingService;
     private final ExtractService extractService;
     private final PersistService persistService;
+    private final WordStore wordStore;
 
     /**
      * 대화내역 txt 파일을 업로드 -> 대화 내용 분석
@@ -38,6 +38,7 @@ public class WordController {
 
         // 단어를 DB에 저장
 //        persistService.saveAll(talkerToToken);
+//        wordStore.save(talkerToLine);
 
         // 분석 진행
         List<FrequencyResult> total = analyzingService.calcTotal(talkerToToken);
@@ -59,5 +60,12 @@ public class WordController {
                 .lowPeriod(low)
                 .highPeriod(high)
                 .build();
+    }
+
+    @GetMapping("/search/{keyword}")
+    public FrequencyResult search(@PathVariable String keyword) {
+        FrequencyResult searchResult = wordStore.search(keyword); // 누가 말했는지
+        // TODO
+        return searchResult;
     }
 }
