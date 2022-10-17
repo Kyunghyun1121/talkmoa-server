@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
-
+@Deprecated
 public interface WordRepository extends JpaRepository<Word, Long>, BatchRepository {
     @Modifying(clearAutomatically = true)
     @Query("update Word w set w.frequency = w.frequency + 1 where w in (:words)")

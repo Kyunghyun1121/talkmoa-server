@@ -1,19 +1,16 @@
 package com.talkmoaserver.service;
 
 import com.talkmoaserver.dto.FrequencyResult;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.stereotype.Service;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
-public class AnalyzeWordService {
-    private Map<String, List<String>> talkerToToken = new HashMap<>();
-
+@Service
+public class SearchService {
+    private final Map<String, List<String>> talkerToToken = new HashMap<>();
 
     public void save(Map<String, List<String>> talkerToToken) {
         this.talkerToToken.putAll(talkerToToken);
@@ -21,12 +18,11 @@ public class AnalyzeWordService {
 
     public List<FrequencyResult> searchWhoUsed(String keyword) {
         List<FrequencyResult> result = new ArrayList<>();
-
         for (String talker : talkerToToken.keySet()) {
-            int usedCount = 0;
-            result.add(new FrequencyResult(talker, countWord(talkerToToken.get(talker), keyword)));
+            int count = countWord(talkerToToken.get(talker), keyword);
+            if (count == 0) continue;
+            result.add(new FrequencyResult(talker, count));
         }
-
         return result;
     }
 
@@ -44,5 +40,9 @@ public class AnalyzeWordService {
             if (talk.equals(keyword)) result++;
         }
         return result;
+    }
+
+    public void clear() {
+        this.talkerToToken.clear();
     }
 }

@@ -6,7 +6,8 @@ import java.util.List;
 
 @Builder
 public record SearchResultResponse(
-        int useNumber,
-        List<FrequencyResult> usedTalker
+        String keyword,
+        int count,
+        List<FrequencyResult> usedTalkers
 ) {
 }

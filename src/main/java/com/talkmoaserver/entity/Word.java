@@ -7,7 +7,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Objects;
-
+@Deprecated
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

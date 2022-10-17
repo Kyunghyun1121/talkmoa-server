@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-
+@Deprecated
 @Repository
 @RequiredArgsConstructor
 public class BatchRepositoryImpl implements BatchRepository {

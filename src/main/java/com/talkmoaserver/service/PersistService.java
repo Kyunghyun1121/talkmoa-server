@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+@Deprecated
 @Slf4j
 @Service
 @Transactional(readOnly = true)

@@ -5,8 +5,7 @@ import com.talkmoaserver.dto.ResultResponse;
 import com.talkmoaserver.dto.SearchResultResponse;
 import com.talkmoaserver.service.AnalyzeService;
 import com.talkmoaserver.service.ExtractService;
-import com.talkmoaserver.service.PersistService;
-import com.talkmoaserver.service.AnalyzeWordService;
+import com.talkmoaserver.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -22,23 +21,20 @@ import java.util.Map;
 public class WordController {
     private final AnalyzeService analyzingService;
     private final ExtractService extractService;
-    private final PersistService persistService;
-    private final AnalyzeWordService analyzeWordservice;
+    private final SearchService searchService;
 
     /**
      * 대화내역 txt 파일을 업로드 -> 대화 내용 분석
      */
     @PostMapping("/analyze")
-    public ResultResponse upload(@RequestParam("file") MultipartFile[] files) throws IOException {
-        // 일단 파일들로 받지만, 하나의 파일만 처리하도록 구현한다
-
+    public ResultResponse upload(@RequestParam("file") MultipartFile file) throws IOException {
         // 대화자 : 토큰, 라인 으로 매핑
-        extractService.saveFile(files[0]);
+        extractService.saveFile(file);
         Map<String, List<String>> talkerToToken = extractService.getTalkerToToken();
         Map<String, List<String>> talkerToLine = extractService.getTalkerToLine();
 
-        // 단어를 wordstore에 저장
-        analyzeWordservice.save(talkerToToken);
+        // 검색을 위해 search 저장
+        searchService.save(talkerToToken);
 
         // 분석 진행
         List<FrequencyResult> total = analyzingService.calcTotal(talkerToToken);
@@ -47,7 +43,6 @@ public class WordController {
         List<FrequencyResult> emoji = analyzingService.calcEmoji(talkerToToken);
         List<FrequencyResult> low = analyzingService.calcTime(talkerToLine, "low");
         List<FrequencyResult> high = analyzingService.calcTime(talkerToLine, "high");
-
 
         // 분석 결과를 DTO 로 응답
         return ResultResponse.builder()
@@ -62,19 +57,20 @@ public class WordController {
                 .build();
     }
 
-    @GetMapping("/search/{keyword}")
-    public SearchResultResponse search(@PathVariable String keyword) {
-
-
-        keyword = keyword.substring(1, keyword.length() - 1);
-
-        List<FrequencyResult> searchWhoUse = analyzeWordservice.searchWhoUsed(keyword); // 누가 말했는지
-        int searchUseNum = analyzeWordservice.searchHowManyUsed(keyword); // 얼마나 말했는지
-
-        // TODO
+    @GetMapping("/search")
+    public SearchResultResponse search(@RequestParam("keyword") String keyword) {
+        List<FrequencyResult> searchWhoUse = searchService.searchWhoUsed(keyword); // 누가 말했는지
+        int searchUseNum = searchService.searchHowManyUsed(keyword); // 얼마나 말했는지
         return SearchResultResponse.builder()
-                .useNumber(searchUseNum)
-                .usedTalker(searchWhoUse)
+                .keyword(keyword)
+                .count(searchUseNum)
+                .usedTalkers(searchWhoUse)
                 .build();
+    }
+
+    @GetMapping("/finish")
+    public boolean finish() {
+        searchService.clear();
+        return true;
     }
 }
