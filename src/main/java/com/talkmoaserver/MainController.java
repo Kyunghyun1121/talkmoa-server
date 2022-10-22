@@ -1,14 +1,17 @@
-package com.talkmoaserver.controller;
+package com.talkmoaserver;
 
 import com.talkmoaserver.dto.FrequencyResult;
-import com.talkmoaserver.dto.ResultResponse;
 import com.talkmoaserver.dto.SearchResultResponse;
 import com.talkmoaserver.service.AnalyzeService;
 import com.talkmoaserver.service.ExtractService;
 import com.talkmoaserver.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,18 +19,23 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@RestController
+@Controller
 @RequiredArgsConstructor
-public class WordController {
+public class MainController {
     private final AnalyzeService analyzingService;
     private final ExtractService extractService;
     private final SearchService searchService;
+
+    @GetMapping
+    public String mainPage() {
+        return "main";
+    }
 
     /**
      * 대화내역 txt 파일을 업로드 -> 대화 내용 분석
      */
     @PostMapping("/analyze")
-    public ResultResponse upload(@RequestParam("file") MultipartFile file) throws IOException {
+    public String upload(@RequestParam("file") MultipartFile file, Model model) throws IOException {
         // 대화자 : 토큰, 라인 으로 매핑
         extractService.saveFile(file);
         Map<String, List<String>> talkerToToken = extractService.getTalkerToToken();
@@ -44,17 +52,15 @@ public class WordController {
         List<FrequencyResult> low = analyzingService.calcTime(talkerToLine, "low");
         List<FrequencyResult> high = analyzingService.calcTime(talkerToLine, "high");
 
-        // 분석 결과를 DTO 로 응답
-        return ResultResponse.builder()
-                .chatRoomName(extractService.getRoomName())
-                .talkers(extractService.getTalkers())
-                .total(total)
-                .wordRanking(ranking)
-                .media(media)
-                .emoji(emoji)
-                .lowPeriod(low)
-                .highPeriod(high)
-                .build();
+        model.addAttribute("roomName", extractService.getRoomName());
+        model.addAttribute("total", total);
+        model.addAttribute("ranking", ranking);
+        model.addAttribute("media", media);
+        model.addAttribute("emoji", emoji);
+        model.addAttribute("low", low);
+        model.addAttribute("high", high);
+
+        return "result";
     }
 
     @GetMapping("/search")

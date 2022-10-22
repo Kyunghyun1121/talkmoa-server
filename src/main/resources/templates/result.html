@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk Moa</title>
+    <link th:href="@{/css/talk.css}" href="../static/css/talk.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/v8/js/anychart-tag-cloud.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <a href="main.html" class="logo">TALK MOA</a>
+    </header>
+    <div class="body-wrapper">
+        <section class="body-content">
+            <br><br>
+            <p class="section_title">[<span th:text="${roomName}"></span>] 채팅방에서 나눈 대화 분석 입니다!</p>
+            <div class="section_title">
+                <input type="text" placeholder="검색할 단어를 입력해주세요" class="search_input">
+                <input type="button" value="검색" class="search_btn">
+            </div>
+
+            <div class="box_six">
+                <div class="box_first">
+                    <div style="text-align: center; margin-top: 10px;">
+                    <div th:each="fr: ${total}" class="box_content_bold" style="font-weight: 400;">
+                        <span th:text="${fr.subject()}"></span> (<span th:text="${fr.frequency()}"></span>) 회
+                    </div>
+                    </div>
+                    <div class="box_content_rank char-area">
+                        <div id="box_word_cloud" style="width:100%; height:100%;"></div>
+                    </div>
+                    <script th:inline="javascript">
+                        anychart.onDocumentReady(() => {
+                            const categories = ["Sino-Tibetan", "Indo-European", "Afro-Asiatic"];
+                            const ranking = [[${ranking}]];
+                            const data = [];
+                            ranking.forEach((item, index) => {
+                                data[index] = {
+                                    "x": item.subject,
+                                    "value": item.frequency,
+                                    "category": categories[Math.floor(Math.random() * ranking.length)]
+                                }
+                            });
+                            const chart = anychart.tagCloud(data);
+                            chart.angles([0]);
+                            chart.container("box_word_cloud");
+                            chart.draw();
+                        });
+                    </script>
+                </div>
+            </div>
+    
+            <div class="box_six">
+                <div class="box_color">
+                    <div class="container-image">
+                        <img th:src="@{/image/color-box-image1.png}" alt="" class="box_image">
+                    </div>
+                    <div class="box_bottom purple">
+                        <p class="box_content_bold"><br>미디어를 주고받은 횟수<br>(사진 / 동영상 / 첨부파일)</p>
+                        <div th:each="mediaFr: ${media}">
+                            <p class="box_content"><span th:text="${mediaFrStat.count}"></span>위.
+                                <span th:text="${mediaFr.subject()}"></span> (<span th:text="${mediaFr.frequency()}"></span>회)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="box_color">
+                    <div class="box_top white-purple">
+                        <p class="box_content_bold">이모티콘을 주고받은 횟수</p><br>
+                        <div th:each="emojiFr: ${emoji}">
+                            <p class="box_content"><span th:text="${emojiFrStat.count}"></span>위.
+                                <span th:text="${emojiFr.subject()}"></span> (<span th:text="${emojiFr.frequency()}"></span>회)</p>
+                        </div>
+                    </div>
+                    <div class="container-image">
+                        <img th:src="@{/image/color-box-image2.png}" alt="" class="box_image">
+                    </div>
+                </div>
+                <div class="box_color">
+                    <div class="box_top pink">
+                        <p class="box_content_bold">우리가 가장 조용한 시간 찾기</p>
+                        <div th:each="lowFr: ${low}">
+                            <p class="box_content"><span th:text="${lowFrStat.count}"></span>위.
+                                <span th:text="${lowFr.subject()}"></span> (<span th:text="${lowFr.frequency()}"></span>회)</p>
+                        </div>
+                        <br>
+                        <p class="box_content"><a href="/statistics_graph.html" class="text_center">자세히보기</a></p>
+                    </div>
+                    <div class="container-image">
+                        <img th:src="@{/image/color-box-image3.png}" alt="" class="box_image">
+                    </div>
+                </div>
+            </div>
+    
+            <div class="box_six">
+                <div class="box_color">
+                    <div class="container-image">
+                        <img th:src="@{/image/color-box-image4.png}" alt="" class="box_image">
+                    </div>
+                    <div class="box_bottom green">
+                        <p class="box_content_bold">우리가 가장 활발한 시간 찾기</p>
+                        <div th:each="highFr: ${high}">
+                            <p class="box_content"><span th:text="${highFrStat.count}"></span>위.
+                                <span th:text="${highFr.subject()}"></span> (<span th:text="${highFr.frequency()}"></span>회)</p>
+                        </div>
+                        <br>
+                        <p class="box_content"><a href="/statistics_graph.html" class="text_center">자세히보기</a></p>
+                    </div>
+                </div>
+                <div class="box_color">
+                    <div class="box_top yellow">
+                        <br><br>
+                        <p class="box_content_bold">
+                            <a th:href="@{/}" class="box_content_bold go_home">HOME으로 이동</a>
+                        </p>
+                    </div>
+                    <div class="container-image">
+                        <img th:src="@{/image/color-box-image5.png}" alt="" class="box_image">
+                    </div>
+                </div>
+                <div class="box_color">
+                    <div class="container-image">
+                        <img th:src="@{/image/color-box-image6.png}" alt="" class="box_image">
+                    </div>
+                    <div class="box_bottom blue">
+                        <p class="box_content_bold"><br><br>공유하기</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <!-- body의 전체 뼈대 끝 -->
+
+        <!-- footer -->
+        <footer class="footer">
+            <div class="center_info">
+                <span class="link"><a href="#">운영정책</a></span>
+                <span class="link"><a href="#">브랜드보호정책</a></span>
+                <span class="link"><a href="#">이용약관</a></span>
+                <span class="link"><a href="#">공지사항</a></span>
+                <span class="link"><a href="#">개인정보처리방침</a></span>
+            </div>
+    
+            <div class="center_info">©TALKMOA</div>
+            <div class="center_info">Tel. 010.111.2222 | @TalkMOA_star | talkmoa123@naver.com </div>
+        </footer>
+        <!-- footer 끝 -->
+    </div>
+    <!-- body & footer 끝 -->
+</body>
+</html>
