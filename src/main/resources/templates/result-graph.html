@@ -1,4 +1,3 @@
-<!-- html 틀 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,74 +5,59 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talk Moa</title>
-    <link rel="stylesheet" href="./css/talk.css">
+    <link rel="stylesheet" th:href="@{/css/talk.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
 
 </head>
 <body>
-    <!-- header [class명 header]-->
     <header class="header">
         <a href="main.html" class="logo">TALK MOA</a>
     </header>
-    <!-- header 끝 -->
-
-    <!-- body & footer [class명 body-wrapper]-->
     <div class="body-wrapper">
-        <!-- body의 전체 뼈대 [class명 body-content] -->
         <section class="body-content">
-            <!-- 그림자가 있는 박스 테두리가 필요할 경우 [class명 box] / 특정부분에 추가로 css를 넣을경우 해당 부분에 주석을 달고 임의의 변수 설정 -->
-
             <div class="section_back">
+                <br>
                 <i class="bi bi-arrow-bar-left"></i>
                 <button onclick="history.back()" class="btn">뒤로 가기</button>
             </div>
 
             <div class="pure_image">
-                <img src="./image/color-box-image1.png" alt="" class="statistics_graph1_image">
+                <img th:src="@{/image/color-box-image1.png}" alt="" class="statistics_graph1_image">
             </div>
 
             <div class="box_statistics">
                 <div class="box_statistics_top">
-                    <span class="chat_name">팀프로젝트1</span><span> | </span>
-                    <span class="chat_member">5명</span>
-                    <span class="chat_period">2022.05.05 - 2022.09.30</span>
+                    채팅방 이름 : <span class="chat_name" th:text="${roomName}"></span><span> | </span>
+                    대화자 총 <span class="chat_member" th:text="${talkerCount}"></span> 명
                 </div>
                 <div class="box_statistics_main">
                     <canvas id="myChart"></canvas>
                 </div>
-                <div class="box_statistics_bottom gray">
-                    <p class="text_most_user">이메론님이 가장 많이 "ㅋㅋㅋㅋ"을 사용하셨네요</p>
-                </div>
             </div>
 
         </section>
-        <!-- body의 전체 뼈대 끝 -->
 
-        <!-- footer -->
         <footer class="footer">
-            <div class="center_info">
-                <span class="link"><a href="#">운영정책</a></span>
-                <span class="link"><a href="#">브랜드보호정책</a></span>
-                <span class="link"><a href="#">이용약관</a></span>
-                <span class="link"><a href="#">공지사항</a></span>
-                <span class="link"><a href="#">개인정보처리방침</a></span>
-            </div>
-    
             <div class="center_info">©TALKMOA</div>
-            <div class="center_info">Tel. 010.111.2222 | @TalkMOA_star | talkmoa123@naver.com </div>
+            <div class="center_info">All copyrights reserved by 명지대 컴퓨터공학과 팀 프로젝트1 3조</div>
         </footer>
-        <!-- footer 끝 -->
     </div>
-    <!-- body & footer 끝 -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-   
-        // data가 실질적으로 chart 구성하는 부분
+    <script th:inline="javascript">
+        const graph = [[${graph}]]
+        const subject = [[${subject}]]
+        const dataLabels = []
+        const dataItems = []
+
+        graph.forEach((item, index) => {
+            dataLabels[index] = item.subject
+            dataItems[index] = item.frequency
+        })
         const data = {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          labels: dataLabels,
           datasets: [{
-            label: 'Weekly Sales',
-            data: [18, 12, 6, 9, 12, 3, 9],
+            label: subject,
+            data: dataItems,
             backgroundColor: [
               'rgba(255, 26, 104, 0.2)',
               'rgba(54, 162, 235, 0.2)',

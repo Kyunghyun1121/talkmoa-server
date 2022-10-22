@@ -61,7 +61,7 @@
                         <img th:src="@{/image/color-box-image1.png}" alt="" class="box_image">
                     </div>
                     <div class="box_bottom purple">
-                        <p class="box_content_bold"><br>미디어를 주고받은 횟수<br>(사진 / 동영상 / 첨부파일)</p>
+                        <p class="box_content_bold"><br>미디어를 전송한 횟수에요<br>(사진 / 동영상 / 첨부파일)</p>
                         <div th:each="mediaFr: ${media}">
                             <p class="box_content"><span th:text="${mediaFrStat.count}"></span>위.
                                 <span th:text="${mediaFr.subject()}"></span> (<span th:text="${mediaFr.frequency()}"></span>회)
@@ -71,7 +71,7 @@
                 </div>
                 <div class="box_color">
                     <div class="box_top white-purple">
-                        <p class="box_content_bold">이모티콘을 주고받은 횟수</p><br>
+                        <p class="box_content_bold">이모티콘 애용자 순위에요</p><br>
                         <div th:each="emojiFr: ${emoji}">
                             <p class="box_content"><span th:text="${emojiFrStat.count}"></span>위.
                                 <span th:text="${emojiFr.subject()}"></span> (<span th:text="${emojiFr.frequency()}"></span>회)</p>
@@ -83,13 +83,15 @@
                 </div>
                 <div class="box_color">
                     <div class="box_top pink">
-                        <p class="box_content_bold">우리가 가장 조용한 시간 찾기</p>
+                        <p class="box_content_bold">이 시간대가 가장 조용했어요</p>
                         <div th:each="lowFr: ${low}">
                             <p class="box_content"><span th:text="${lowFrStat.count}"></span>위.
                                 <span th:text="${lowFr.subject()}"></span> (<span th:text="${lowFr.frequency()}"></span>회)</p>
                         </div>
                         <br>
-                        <p class="box_content"><a href="/statistics_graph.html" class="text_center">자세히보기</a></p>
+                        <form th:action="@{/graph/low}" method="get" style="text-align: center">
+                            <input type="submit" value="그래프로 보기" class="graph_button">
+                        </form>
                     </div>
                     <div class="container-image">
                         <img th:src="@{/image/color-box-image3.png}" alt="" class="box_image">
@@ -103,20 +105,22 @@
                         <img th:src="@{/image/color-box-image4.png}" alt="" class="box_image">
                     </div>
                     <div class="box_bottom green">
-                        <p class="box_content_bold">우리가 가장 활발한 시간 찾기</p>
+                        <p class="box_content_bold">이 시간대에 가장 많이 떠들었어요</p>
                         <div th:each="highFr: ${high}">
                             <p class="box_content"><span th:text="${highFrStat.count}"></span>위.
                                 <span th:text="${highFr.subject()}"></span> (<span th:text="${highFr.frequency()}"></span>회)</p>
                         </div>
                         <br>
-                        <p class="box_content"><a href="/statistics_graph.html" class="text_center">자세히보기</a></p>
+                        <form th:action="@{/graph/high}" method="get" style="text-align: center">
+                            <input type="submit" value="그래프로 보기" class="graph_button">
+                        </form>
                     </div>
                 </div>
                 <div class="box_color">
                     <div class="box_top yellow">
                         <br><br>
                         <p class="box_content_bold">
-                            <a th:href="@{/}" class="box_content_bold go_home">HOME으로 이동</a>
+                            <a th:href="@{/}" class="box_content_bold go_home">다른 대화내역도 분석해보기</a>
                         </p>
                     </div>
                     <div class="container-image">
@@ -128,29 +132,17 @@
                         <img th:src="@{/image/color-box-image6.png}" alt="" class="box_image">
                     </div>
                     <div class="box_bottom blue">
-                        <p class="box_content_bold"><br><br>공유하기</p>
+                        <p class="box_content_bold"><br><br>카카오톡으로 공유하기</p>
                     </div>
                 </div>
             </div>
 
         </section>
-        <!-- body의 전체 뼈대 끝 -->
 
-        <!-- footer -->
         <footer class="footer">
-            <div class="center_info">
-                <span class="link"><a href="#">운영정책</a></span>
-                <span class="link"><a href="#">브랜드보호정책</a></span>
-                <span class="link"><a href="#">이용약관</a></span>
-                <span class="link"><a href="#">공지사항</a></span>
-                <span class="link"><a href="#">개인정보처리방침</a></span>
-            </div>
-    
             <div class="center_info">©TALKMOA</div>
-            <div class="center_info">Tel. 010.111.2222 | @TalkMOA_star | talkmoa123@naver.com </div>
+            <div class="center_info">All copyrights reserved by 명지대 컴퓨터공학과 팀 프로젝트1 3조</div>
         </footer>
-        <!-- footer 끝 -->
     </div>
-    <!-- body & footer 끝 -->
 </body>
 </html>

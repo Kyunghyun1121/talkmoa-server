@@ -490,6 +490,20 @@ input[type=file]::file-selector-button:hover {
     padding-top: 10px;
 }
 
+.graph_button {
+    text-align: center;
+    border-radius: 5px;
+    border: none;
+    background-color: white;
+}
+
+.graph_button:hover {
+    text-align: center;
+    border-radius: 5px;
+    border: none;
+    background-color: grey;
+}
+
 .box_content {
     width: 100%;
     text-align: center;

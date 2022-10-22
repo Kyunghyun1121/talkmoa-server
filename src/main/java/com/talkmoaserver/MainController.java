@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,7 @@ public class MainController {
     private final AnalyzeService analyzingService;
     private final ExtractService extractService;
     private final SearchService searchService;
+    private final InMemoryStore inMemoryStore;
 
     @GetMapping
     public String mainPage() {
@@ -52,6 +54,9 @@ public class MainController {
         List<FrequencyResult> low = analyzingService.calcTime(talkerToLine, "low");
         List<FrequencyResult> high = analyzingService.calcTime(talkerToLine, "high");
 
+        inMemoryStore.saveLow(low);
+        inMemoryStore.saveHigh(high);
+
         model.addAttribute("roomName", extractService.getRoomName());
         model.addAttribute("total", total);
         model.addAttribute("ranking", ranking);
@@ -72,6 +77,21 @@ public class MainController {
                 .count(searchUseNum)
                 .usedTalkers(searchWhoUse)
                 .build();
+    }
+
+    @GetMapping("/graph/{type}")
+    public String graph(@PathVariable String type, Model model) throws IOException {
+        model.addAttribute("roomName", extractService.getRoomName());
+        model.addAttribute("talkerCount", extractService.getTalkers().size());
+        List<FrequencyResult> graph = null;
+        String subject = null;
+        switch (type) {
+            case "low" -> { graph = inMemoryStore.getLow(); subject = "가장 대화를 조용하게 나눈 시간대"; }
+            case "high" -> { graph = inMemoryStore.getHigh();  subject = "가장 대화를 활발하게 나눈 시간대"; }
+        }
+        model.addAttribute("graph", graph);
+        model.addAttribute("subject", subject);
+        return "result-graph";
     }
 
     @GetMapping("/finish")
