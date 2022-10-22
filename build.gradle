@@ -19,14 +19,14 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'mysql:mysql-connector-java'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+	developmentOnly("org.springframework.boot:srping-boot-devtools")
 }
 
 tasks.named('test') {

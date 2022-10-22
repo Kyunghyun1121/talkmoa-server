@@ -21,7 +21,7 @@ public class AnalyzeService {
         List<FrequencyResult> result = new ArrayList<>();
         for (String talker : talkerToWords.keySet())
             result.add(new FrequencyResult(talker, countTalkingInList(talkerToWords.get(talker))));
-        return result;
+        return bigSort(result);
     }
 
     // 대화횟수를 세주는 함수
@@ -69,7 +69,7 @@ public class AnalyzeService {
 
         int rank = 1;
         for (String word : keySetList) {
-            if (rank > 10) break;
+            if (rank > 40) break;
             result.add(new FrequencyResult(word, wordRanking.get(word)));
             rank++;
         }
@@ -88,7 +88,7 @@ public class AnalyzeService {
             List<String> talkingList = talkerToWords.get(talker);
             result.add(new FrequencyResult(talker, countMediaInList(talkingList)));
         }
-        return result;
+        return bigSort(result);
     }
 
     //미디어 개수를 세주는 함수
@@ -112,7 +112,7 @@ public class AnalyzeService {
             for (String talk : talkingList) if (talk.equals("이모티콘")) emojiCounter++;
             result.add(new FrequencyResult(talker, emojiCounter));
         }
-        return result;
+        return bigSort(result);
     }
 
     /**
@@ -138,7 +138,7 @@ public class AnalyzeService {
         List<FrequencyResult> result = new ArrayList<>();
         int i = 0;
         for (Integer time : keySetList) {
-            if (i > 5) break;
+            if (i > 4) break;
             String timePeriod = time + "시~" + (time+1) + "시";
             result.add(new FrequencyResult(timePeriod, talkingTimeMap.get(time)));
             i++;
@@ -182,6 +182,11 @@ public class AnalyzeService {
             talkingTimeMap.put(time, talkingTimeMap.get(time) + 1);
         else
             talkingTimeMap.put(time, 1);
+    }
+
+    public List<FrequencyResult> bigSort(List<FrequencyResult> result) {
+        result.sort((a, b) -> b.frequency() - a.frequency());
+        return result;
     }
 
 

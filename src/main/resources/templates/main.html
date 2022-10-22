@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk Moa</title>
+    <link th:href="@{/css/talk.css}" href="../static/css/talk.css" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header">
+        <a href="./main.html" class="logo">TALK MOA</a>
+    </header>
+    <div class="body-wrapper">
+        <section class="body-content">
+            <div class="box info">
+                <div class="content-form">
+                    <p class="title">TALK MOA</p>
+                    <div class="content">
+                        <p class="content">톡모아는 카카오톡 대화내역을 분석하여 통계를 제공하는 서비스 입니다.</p>
+                        <p class="content">우리 채팅방에서 평소에 나눈 대화들을 수치적으로 확인해 보세요!</p>
+                        <p class="content">이 점은 회의시간이나 기여도 및 참여도 등을 평가할 때 좋은 방안이 될 것입니다.</p>
+                        <p class="content">내가 평소에 자주 쓰는 말이 무엇인지 알아보려면 톡모아를 이용해보세요!</p>
+                        <p class="content">또한, 나의 습관을 알아볼 소중한 기회를 놓치지 마세요!</p>
+                    </div>
+                </div>
+                <img class="image" th:src="@{/image/image1.PNG}" />
+            </div>
+
+            <form id="form_analysis" class="box analysis" method="POST" th:action="@{/analyze}"
+                enctype="multipart/form-data">
+                <div class="upload-form">
+                    <p class="title">우리 채팅방은 어떤 대화를 나눴는지 알아볼까요?</p>
+                    <label href="txt-upload-button" class="file-button">
+                        대화내역 가져오기
+                        <input type="file" name="file" id="txt-upload-button" accept=".txt" value="file"
+                            style="display: none;">
+                    </label>
+                    <p class="file-name"></p>
+
+                    <div class="tag">※ 채팅방 설정 -> 대화내용 내보내기 후 저장된 txt 파일을 업로드 해주세요!</div>
+
+                    <br>
+                </div>
+
+                <input id="submit_btn" class="submit_btn" type="submit" value="분석하기">
+
+                <img class="image2" th:src="@{/image/image2.PNG}" />
+            </form>
+        </section>
+
+        <footer class="footer">
+            <div class="center_info">©TALKMOA</div>
+            <div class="center_info">All copyrights reserved by 명지대 컴퓨터공학과 팀 프로젝트1 3조</div>
+        </footer>
+    </div>
+
+    <script>
+        const fileButton = document.querySelector(".file-button")
+        const fileName = document.querySelector(".file-name")
+
+        fileButton.addEventListener("change", (e) => {
+            fileName.innerHTML = "가져온 대화 내역 : " + e.target.files[0].name
+        })
+    </script>
+</body>
+
+</html>
