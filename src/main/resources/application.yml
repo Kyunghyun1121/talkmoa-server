@@ -1,16 +1,4 @@
 spring:
-  # DB 설정
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        jdbc:
-          batch_size: 10000
-        order_inserts: true
-        order_updates: true
-        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -22,9 +10,11 @@ spring:
   output:
     ansi:
       enabled: always
-  
-  profiles:
-    active: secret
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
 
 # 에러 응답 설정
 server:
