@@ -26,7 +26,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
-	developmentOnly("org.springframework.boot:srping-boot-devtools")
+//	developmentOnly("org.springframework.boot:srping-boot-devtools")
 }
 
 tasks.named('test') {
