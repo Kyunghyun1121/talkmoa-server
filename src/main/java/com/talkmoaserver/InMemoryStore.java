@@ -28,4 +28,9 @@ public class InMemoryStore {
     public List<FrequencyResult> getHigh() {
         return currentHigh;
     }
+
+    public void clear() {
+        currentLow.clear();
+        currentHigh.clear();
+    }
 }

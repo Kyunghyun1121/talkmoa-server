@@ -38,6 +38,8 @@ public class MainController {
      */
     @PostMapping("/analyze")
     public String upload(@RequestParam("file") MultipartFile file, Model model) throws IOException {
+        inMemoryStore.clear();
+
         // 대화자 : 토큰, 라인 으로 매핑
         extractService.saveFile(file);
         Map<String, List<String>> talkerToToken = extractService.getTalkerToToken();
@@ -86,17 +88,11 @@ public class MainController {
         List<FrequencyResult> graph = null;
         String subject = null;
         switch (type) {
-            case "low" -> { graph = inMemoryStore.getLow(); subject = "가장 대화를 조용하게 나눈 시간대"; }
+            case "low" -> { graph = inMemoryStore.getLow(); subject = "가장 대화를 적게 나눈 시간대"; }
             case "high" -> { graph = inMemoryStore.getHigh();  subject = "가장 대화를 활발하게 나눈 시간대"; }
         }
         model.addAttribute("graph", graph);
         model.addAttribute("subject", subject);
         return "result-graph";
-    }
-
-    @GetMapping("/finish")
-    public boolean finish() {
-        searchService.clear();
-        return true;
     }
 }

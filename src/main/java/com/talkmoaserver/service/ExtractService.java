@@ -29,8 +29,6 @@ public class ExtractService {
 
     // 대화내역(txt) 파일을 라인 별로 자르는 함수
     private List<String> slicePerLine() throws IOException {
-//        log.info("slicePerLine 호출");
-//        long start = System.currentTimeMillis();
         ArrayList<String> result = new ArrayList<>();
         BufferedReader reader = openFile();
         while (true) {
@@ -47,8 +45,6 @@ public class ExtractService {
             result.add(line);
         }
         reader.close();
-//        long end = System.currentTimeMillis();
-//        log.info("slicedPerLine 수행 시간 = {}s", (end - start)/1000.0);
         return result;
     }
 
@@ -99,7 +95,6 @@ public class ExtractService {
 
     //  대화자 (1) : 대화 한 단어들 (리스트) 로 매핑 지어서 돌려주는 함수
     private Map<String, List<String>> mapTalkerToToken(List<String> talkers, List<String> slicedPerLine) {
-//        long start = System.currentTimeMillis();
         Map<String, List<String>> result = new HashMap<>();
         for (String line : slicedPerLine) {
             for (String talker : talkers) {
@@ -113,13 +108,10 @@ public class ExtractService {
                 }
             } // talker loop end
         } // line loop end
-//        long end = System.currentTimeMillis();
-//        log.info("mapTalkerToToken 수행 시간 = {}s", (end - start)/1000.0);
         return result;
     }
 
     private Map<String, List<String>> mapTalkerToLine(List<String> talkers, List<String> slicedPerLine) {
-//        long start = System.currentTimeMillis();
         Map<String, List<String>> result = new HashMap<>();
         for (String line : slicedPerLine) {
             for (String talker : talkers) {
@@ -134,9 +126,21 @@ public class ExtractService {
                 }
             } // talkers loop end
         } // line loop end
-//        long end = System.currentTimeMillis();
-//        log.info("mapTalkerToLine 수행 시간 = {}s", (end - start)/1000.0);
         return result;
+    }
+
+    private Map<String, List<String>> refineTalkers(Map<String, List<String>> temp) {
+        Map<Integer, String> countToTalker = new TreeMap<>(Comparator.reverseOrder());
+        for (String talker : temp.keySet()) {
+            countToTalker.put(temp.get(talker).size(), talker);
+        }
+        ArrayList<Integer> values = new ArrayList<>(countToTalker.keySet());
+        Integer max = Collections.max(values);
+        int validInterval = Math.abs(values.get(0) - values.get(1));
+        for (Integer count : countToTalker.keySet()) {
+            if (Math.abs(max - count) > validInterval) temp.remove(countToTalker.get(count));
+        }
+        return temp;
     }
 
     /**
@@ -150,7 +154,10 @@ public class ExtractService {
         List<String> talkers = getTalkers();
 
         // 대화자(1) : 말한 단어(토큰화된 리스트) 를 매핑한다
-        return mapTalkerToToken(talkers, slicedResult);
+        Map<String, List<String>> rawTalkerToToken = mapTalkerToToken(talkers, slicedResult);
+
+        // 대화자들을 정제하여 반환한다
+        return refineTalkers(rawTalkerToToken);
     }
 
     public Map<String, List<String>> getTalkerToLine() throws IOException {
@@ -160,6 +167,10 @@ public class ExtractService {
         // txt 파일에서 대화자를 추출한다
         List<String> talkers = getTalkers();
 
-        return mapTalkerToLine(talkers, slicedResult);
+        // 대화자(1) : 말한 라인을 매핑한다
+        Map<String, List<String>> rawTalkerToLine = mapTalkerToLine(talkers, slicedResult);
+
+        // 대화자들을 정제하여 반환한다
+        return refineTalkers(rawTalkerToLine);
     }
 }
