@@ -1,7 +1,6 @@
 package com.talkmoaserver;
 
 import com.talkmoaserver.dto.FrequencyResult;
-import com.talkmoaserver.dto.SearchResultResponse;
 import com.talkmoaserver.service.AnalyzeService;
 import com.talkmoaserver.service.ExtractService;
 import com.talkmoaserver.service.SearchService;
@@ -70,16 +69,13 @@ public class MainController {
         return "result";
     }
 
-    @GetMapping("/search")
-    public SearchResultResponse search(@RequestParam("keyword") String keyword) {
-        List<FrequencyResult> searchWhoUse = searchService.searchWhoUsed(keyword); // 누가 말했는지
-        int searchUseNum = searchService.searchHowManyUsed(keyword); // 얼마나 말했는지
-        return SearchResultResponse.builder()
-                .keyword(keyword)
-                .count(searchUseNum)
-                .usedTalkers(searchWhoUse)
-                .build();
-    }
+//    @GetMapping("/search")
+//    public String search(@RequestParam("keyword") String keyword) {
+//        System.out.println(keyword);
+//        List<FrequencyResult> searchWhoUse = searchService.searchWhoUsed(keyword); // 누가 말했는지
+//        int searchUseNum = searchService.searchHowManyUsed(keyword); // 얼마나 말했는지
+//        return "redirect:/main";
+//    }
 
     @GetMapping("/graph/{type}")
     public String graph(@PathVariable String type, Model model) throws IOException {

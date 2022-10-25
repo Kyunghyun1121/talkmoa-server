@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-tag-cloud.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <header class="header">
@@ -19,10 +20,22 @@
         <section class="body-content">
             <br><br>
             <p class="section_title">[<span th:text="${roomName}"></span>] 채팅방에서 나눈 대화 분석 입니다!</p>
-            <div class="section_title">
-                <input type="text" placeholder="검색할 단어를 입력해주세요" class="search_input">
-                <input type="button" value="검색" class="search_btn">
-            </div>
+<!--            <div class="section_title">-->
+<!--                <form method="GET" th:action="@{/search}">-->
+<!--                    <input type="text" name="keyword" placeholder="검색할 단어를 입력해주세요" class="search_input">-->
+<!--                    <input type="submit" value="검색" id="open" class="search_btn">-->
+<!--                </form>-->
+<!--            </div>-->
+<!--            <div class="modal hidden">-->
+<!--                <div class="md_overlay"></div>-->
+<!--                <div class="md_content">-->
+<!--                    <h1>[[${keyword}]] 검색 결과</h1>-->
+<!--                    <div class="modal_text">-->
+<!--                        검색 결과입니다.-->
+<!--                    </div>-->
+<!--                    <button class="search_btn">닫기</button>-->
+<!--                </div>-->
+<!--            </div>-->
 
             <div class="box_six">
                 <div class="box_first">
@@ -131,8 +144,10 @@
                     <div class="container-image">
                         <img th:src="@{/image/color-box-image6.png}" alt="" class="box_image">
                     </div>
-                    <div class="box_bottom blue">
-                        <p class="box_content_bold"><br><br>카카오톡으로 공유하기</p>
+                    <div class="box_bottom blue" style="text-align: center">
+                        <p class="box_content_bold">결과 화면을 저장해 보세요! (Coming Soon)</p>
+                        <input type="button" value="화면 지정후 캡쳐!" class="graph_button"/>
+                        <a id="target" style="display: none"></a>
                     </div>
                 </div>
             </div>
@@ -144,5 +159,134 @@
             <div class="center_info">All copyrights reserved by 명지대 컴퓨터공학과 팀 프로젝트1 3조</div>
         </footer>
     </div>
+
+<script type="text/javascript" th:inline="javascript">
+    window.onload = function(){
+        // 캡쳐 버튼 클릭 이벤트 등록
+        document.getElementById("edit").addEventListener("click", function(e){
+            // 마우스 커서 모양 변경 (eidt_cursor 클래스 추가)
+            document.querySelector("body").classList.add("edit_cursor");
+            screenshot(e);
+        });
+    }
+    //필요한 엘리먼트들을 선택한다.
+    const openButton = document.getElementById("open");
+    const modal = document.querySelector(".modal");
+    const overlay = modal.querySelector(".md_overlay");
+    const closeButton = modal.querySelector("button");
+    //동작함수
+    const openModal = () => {
+        modal.classList.remove("hidden");
+    }
+    const closeModal = () => {
+        modal.classList.add("hidden");
+    }
+    //클릭 이벤트
+    openButton.addEventListener("click", openModal);
+    closeButton.addEventListener("click", closeModal);
+    window.onload = function(){
+        // 캡쳐 버튼 클릭 이벤트 등록
+        document.getElementById("edit").addEventListener("click", function(e){
+            // 마우스 커서 모양 변경 (eidt_cursor 클래스 추가)
+            document.querySelector("body").classList.add("edit_cursor");
+            screenshot(e);
+        });
+    }
+    /*
+    *
+    */
+    function screenshot(e){
+        var startX, startY;
+        var height = window.innerHeight;
+        var width = window.innerWidth;
+
+        // 배경을 어둡게 깔아주기 위한 div 객체 생성
+        var $screenBg = document.createElement("div");
+        $screenBg.id = "screenshot_background";
+        $screenBg.style.borderWidth = "0 0 " + height + "px 0";
+
+        // 마우스 이동하면서 선택한 영역의 크기를 보여주기 위한 div 객체 생성
+        var $screenshot = document.createElement("div");
+        $screenshot.id = "screenshot";
+
+        document.querySelector("body").appendChild($screenBg);
+        document.querySelector("body").appendChild($screenshot);
+
+        var selectArea = false;
+        var body = document.querySelector('body');
+
+        // 마우스 누르는 이벤트 함수
+        var mousedown = function(e) {
+            e.preventDefault();
+            selectArea = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            // 이벤트를 실행하면서 이벤트 삭제 (한번만 동작하도록)
+            body.removeEventListener("mousedown", mousedown);
+        }
+        // 마우스 누르는 이벤트 등록
+        body.addEventListener("mousedown", mousedown);
+
+        // 클릭한 마우스 떼는 이벤트 함수
+        var mouseup = function(e) {
+            selectArea = false;
+            // (초기화) 마우스 떼면서 마우스무브 이벤트 삭제
+            body.removeEventListener("mousemove", mousemove);
+            // (초기화) 스크린샷을 위해 생성한 객체 삭제
+            $screenshot.parentNode.removeChild($screenshot);
+            $screenBg.parentNode.removeChild($screenBg);
+            let x = e.clientX;
+            let y = e.clientY;
+            let top = Math.min(y, startY);
+            let left = Math.min(x, startX);
+            let width = Math.max(x, startX) - left;
+            let height = Math.max(y, startY) - top;
+            html2canvas(document.body).then(
+                function(canvas) { //전체 화면 캡쳐
+                    // 선택 영역만큼 crop
+                    var img = canvas.getContext('2d').getImageData(left, top, width, height);
+                    var c = document.createElement("canvas");
+                    c.width = width;
+                    c.height = height;
+                    c.getContext('2d').putImageData(img, 0, 0);
+                    save(c); // crop한 이미지 저장
+                }
+            );
+            body.removeEventListener("mouseup", mouseup);
+            // 마우스 커서 기본으로 변경
+            document.querySelector("body").classList.remove("edit_cursor");
+        }
+        body.addEventListener("mouseup", mouseup);
+
+        // 마우스무브 이벤트 함수
+        function mousemove(e) {
+            let x = e.clientX;
+            let y = e.clientY;
+            $screenshot.style.left = x;
+            $screenshot.style.top = y;
+            if (selectArea) { //캡쳐 영역 선택 그림
+                let top = Math.min(y, startY);
+                let right = width - Math.max(x, startX);
+                let bottom = height - Math.max(y, startY);
+                let left = Math.min(x, startX);
+                $screenBg.style.borderWidth = top + 'px ' + right + 'px ' + bottom + 'px ' + left + 'px';
+            }
+        }
+        body.addEventListener("mousemove", mousemove);
+
+        // 캡쳐한 이미지 저장
+        function save(canvas) {
+            if (navigator.msSaveBlob) {
+                let blob = canvas.msToBlob();
+                return navigator.msSaveBlob(blob, 'screenshot.jpg');
+            } else {
+                let el = document.getElementById("target");
+                el.href = canvas.toDataURL("image/jpeg");
+                el.download = 'screenshot.jpg';
+                el.click();
+            }
+        }
+    }
+</script>
 </body>
 </html>

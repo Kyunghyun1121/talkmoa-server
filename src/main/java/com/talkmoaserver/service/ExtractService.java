@@ -136,7 +136,12 @@ public class ExtractService {
         }
         ArrayList<Integer> values = new ArrayList<>(countToTalker.keySet());
         Integer max = Collections.max(values);
-        int validInterval = Math.abs(values.get(0) - values.get(1));
+        int validInterval1 = Math.abs(values.get(0) - values.get(1));
+        int validInterval2 = 0;
+        try {
+            validInterval2 = Math.abs(values.get(1) - values.get(2));
+        } catch (Exception ignored) {}
+        int validInterval = Math.abs(validInterval1 - validInterval2);
         for (Integer count : countToTalker.keySet()) {
             if (Math.abs(max - count) > validInterval) temp.remove(countToTalker.get(count));
         }
@@ -157,7 +162,7 @@ public class ExtractService {
         Map<String, List<String>> rawTalkerToToken = mapTalkerToToken(talkers, slicedResult);
 
         // 대화자들을 정제하여 반환한다
-        return refineTalkers(rawTalkerToToken);
+        return rawTalkerToToken;
     }
 
     public Map<String, List<String>> getTalkerToLine() throws IOException {
@@ -171,6 +176,6 @@ public class ExtractService {
         Map<String, List<String>> rawTalkerToLine = mapTalkerToLine(talkers, slicedResult);
 
         // 대화자들을 정제하여 반환한다
-        return refineTalkers(rawTalkerToLine);
+        return rawTalkerToLine;
     }
 }
